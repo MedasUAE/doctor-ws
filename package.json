@@ -10,8 +10,10 @@
   "author": "Medas",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.6.0",
     "jsonwebtoken": "^8.1.0",
     "mysql": "^2.15.0",
-    "restify": "^6.3.2"
+    "restify": "^6.3.2",
+    "restify-cors-middleware": "^1.0.1"
   }
 }

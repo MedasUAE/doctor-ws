@@ -1,4 +1,5 @@
 var db_query = require('../db/executeQuery');
+var async = require('async');
 
 function getById (id,next){
     const columns = ['appoint_type', 'appoint_date'];
@@ -12,9 +13,13 @@ function getById (id,next){
 }
 
 function getByDoctorId (post_data,next){
-    const columns = ['appoint_type', 'appoint_date', 'appoint_name', 'patient_age', 'sex', 'confirm_status', 'slot_nos'];
-    const query = 'SELECT ' + columns.join(',') + ' FROM appointments WHERE doctors_id=? AND appoint_date = ?';
-    const params = [parseInt(post_data.doctor_id), post_data.appoint_date];
+    if(!post_data) return next("NoPOSTDATA");
+    if(!post_data.appoint_date) return next("NoAptDate");
+    if(!post_data.doctor_id) return next("NoDocID");
+    
+    const columns = ['appoint_type', 'appoint_name', 'confirm_status', 'appoint_hr' ,'appoint_min' , 'slot_nos'];
+    const query = 'SELECT ' + columns.join(',') + ' FROM appointments WHERE doctors_id = ? AND appoint_date = ?';
+    const params = [post_data.doctor_id, post_data.appoint_date];
 
     db_query.paramQuery(query, params, (err, result)=>{
         if(err) return next(err);   
@@ -23,6 +28,7 @@ function getByDoctorId (post_data,next){
 }
 
 function getDoctorSlots(post_data, next){
+    if(!post_data) return next("NoPostData");
     const columns = ['apt_mstr.slots', 'apt_mstr.doctors_id', 'apt_mstr.slot_day'];
     const date = new Date(post_data.appoint_date);
     const params = [post_data.appoint_date, post_data.appoint_date, post_data.doctor_id, date.getDay()];
@@ -41,6 +47,54 @@ function getDoctorSlots(post_data, next){
     });
 }
 
+function prepareSlots(results){
+    if(results.length < 2) return [];
+    if(!Array.isArray(results[1])) return [];
+
+    results[1].forEach(slot => {
+        for (let index = 0; index < results[0].length; index++) {
+            if(betweenTime(results[0][index].appoint_hr, results[0][index].appoint_min,slot.slots)){
+                slot.appointment = results[0][index];
+                index = results[0].length;
+            }
+        }
+    });
+    return results[1];
+}
+
+function betweenTime(fromTime,toTime,slot) {
+    var regExp = /(\d{1,2})\:(\d{1,2})/;
+    if(
+        (parseInt(fromTime.replace(regExp, "$1$2$3")) <= parseInt(slot.replace(regExp,"$1$2$3")))
+        &&
+        (parseInt(slot.replace(regExp,"$1$2$3")) <= parseInt(toTime.replace(regExp, "$1$2$3")))
+    ){
+        return true;
+    }
+    else {return false;}
+}
+
+function getDocAppointment(post_data, next){
+    async.parallel([
+        function(callback) {
+            getByDoctorId(post_data,(err,result)=>{
+                if(err) return callback(err);
+                callback(null, result);
+            })
+        },
+        function(callback) {
+            getDoctorSlots(post_data,(err,slots)=>{
+                if(err) return callback(err);
+                callback(null, slots);
+            })
+        }
+    ],
+    // optional callback
+    function(err, results) {
+        return next(null,prepareSlots(results));
+    });
+}
+
 exports.getById = getById;
-exports.getByDoctorId = getByDoctorId;
+exports.getByDoctorId = getDocAppointment;
 exports.getDoctorSlots = getDoctorSlots;
