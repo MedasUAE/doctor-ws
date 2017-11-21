@@ -54,7 +54,7 @@ function prepareSlots(results){
 
     results[1].forEach(slot => {
         for (let index = 0; index < results[0].length; index++) {
-            slot.time = moment().set({hour:parseInt(slot.slots.split(":")[0]),minute: parseInt(slot.slots.split(":")[1])}).format("h:m A")
+            slot.time = moment().set({hour:parseInt(slot.slots.split(":")[0]),minute: parseInt(slot.slots.split(":")[1])}).format("hh:mm A")
             if(betweenTime(results[0][index].appoint_hr, results[0][index].appoint_min,slot.slots)){
                 slot.appointment = results[0][index];
                 index = results[0].length;
