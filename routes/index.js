@@ -9,7 +9,7 @@ module.exports = function(server){
         const post_data = req.body;
         auth.login(post_data, (err, token)=>{
             if(err) return res.send(400, {DisplayMessage:err});
-            return res.send(200,{token: token});
+            return res.send(200,{data: {token:token}});
         });
     })
 
