@@ -4,10 +4,10 @@ module.exports = {
     port: process.env.PORT || 3000,
     base_url: process.env.BASE_URL || "http://localhost:3000",
     db:{
-        host: 'localhost',
-        user: 'root',
-        password : 'Medas@123',
-        port : 3306, //port mysql
-        database:'eclinic_ghi'
+        host: process.env.DB_HOST || 'localhost',
+        user: process.env.DB_USER || 'root',
+        password : process.env.DB_PSW || 'Medas@123',
+        port : process.env.DB_PORT || 3306, //port mysql
+        database:process.env.DB_NAME || 'eclinic_ghi'
     }
 }
