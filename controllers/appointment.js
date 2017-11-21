@@ -1,5 +1,6 @@
 var db_query = require('../db/executeQuery');
 var async = require('async');
+var moment = require('moment');
 
 function getById (id,next){
     const columns = ['appoint_type', 'appoint_date'];
@@ -53,6 +54,7 @@ function prepareSlots(results){
 
     results[1].forEach(slot => {
         for (let index = 0; index < results[0].length; index++) {
+            slot.time = moment().set({hour:parseInt(slot.slots.split(":")[0]),minute: parseInt(slot.slots.split(":")[1])})
             if(betweenTime(results[0][index].appoint_hr, results[0][index].appoint_min,slot.slots)){
                 slot.appointment = results[0][index];
                 index = results[0].length;

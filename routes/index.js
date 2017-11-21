@@ -11,7 +11,7 @@ module.exports = function(server){
             if(err) return res.send(400, {DisplayMessage:err});
             return res.send(200,{data: {token:token}});
         });
-    })
+    });
 
     server.use(auth.isAuthenticate);
 
@@ -27,7 +27,7 @@ module.exports = function(server){
             if(err) return res.send(400, {DisplayMessage:err});
             return res.send(200,{data:response});
         });
-    })
+    });
 
     server.post('/doc-timeslot', (req, res, next)=>{ 
         appointment.getDoctorSlots(req.body,(err,response) => {

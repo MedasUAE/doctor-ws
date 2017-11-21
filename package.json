@@ -12,6 +12,7 @@
   "dependencies": {
     "async": "^2.6.0",
     "jsonwebtoken": "^8.1.0",
+    "moment": "^2.19.2",
     "mysql": "^2.15.0",
     "restify": "^6.3.2",
     "restify-cors-middleware": "^1.0.1"
