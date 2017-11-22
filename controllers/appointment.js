@@ -80,6 +80,7 @@ function betweenTime(fromTime,toTime,slot) {
 function appointmentStatus(aptObj){
     let apt_status = {};
     const status = {
+        NOTCONFIRMED:'NOTCONFIRMED',
         CONFIRMED:'CONFIRMED',
         ARRIVED:'ARRIVED',
         CLOSED:'CLOSED',
@@ -87,7 +88,7 @@ function appointmentStatus(aptObj){
     };
     
     (aptObj.op_number) ? apt_status.new_patient = false : apt_status.new_patient = true;
-    if(aptObj.confirm_status == 'Y') apt_status.status = status.CONFIRMED;
+    (aptObj.confirm_status == 'Y') ? apt_status.status = status.CONFIRMED : apt_status.status = status.NOTCONFIRMED;
     if(aptObj.doctor_view == 'Y') apt_status.status = status.ARRIVED;
     if(aptObj.bill_submit == 'Y') apt_status.astatus = status.CLOSED;
 
