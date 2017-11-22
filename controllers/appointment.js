@@ -56,6 +56,7 @@ function prepareSlots(results){
         slot.time = moment().set({hour:parseInt(slot.slots.split(":")[0]),minute: parseInt(slot.slots.split(":")[1])}).format("hh:mm A");
         for (let index = 0; index < results[0].length; index++) {
             if(betweenTime(results[0][index].appoint_hr, results[0][index].appoint_min,slot.slots)){
+                (results[0][index].op_number) ? slot.new_patient = false : slot.new_patient = true;
                 slot.status = appointmentStatus(results[0][index]);
                 slot.appointment = results[0][index];
                 index = results[0].length;
@@ -78,7 +79,7 @@ function betweenTime(fromTime,toTime,slot) {
 }
 
 function appointmentStatus(aptObj){
-    let apt_status = {};
+    let status;
     const status = {
         NOTCONFIRMED:'NOTCONFIRMED',
         CONFIRMED:'CONFIRMED',
@@ -87,12 +88,11 @@ function appointmentStatus(aptObj){
         REGISTERED:'REGISTERED'
     };
     
-    (aptObj.op_number) ? apt_status.new_patient = false : apt_status.new_patient = true;
-    (aptObj.confirm_status == 'Y') ? apt_status.status = status.CONFIRMED : apt_status.status = status.NOTCONFIRMED;
-    if(aptObj.doctor_view == 'Y') apt_status.status = status.ARRIVED;
-    if(aptObj.bill_submit == 'Y') apt_status.astatus = status.CLOSED;
+    (aptObj.confirm_status == 'Y') ? status = status.CONFIRMED : status = status.NOTCONFIRMED;
+    if(aptObj.doctor_view == 'Y') status = status.ARRIVED;
+    if(aptObj.bill_submit == 'Y') status = status.CLOSED;
 
-    return apt_status;
+    return status;
 }
 
 function getDocAppointment(post_data, next){
