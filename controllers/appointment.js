@@ -18,7 +18,7 @@ function getByDoctorId (post_data,next){
     if(!post_data.appoint_date) return next("NoAptDate");
     if(!post_data.doctor_id) return next("NoDocID");
     
-    const columns = ['appoint_type', 'appoint_name', 'confirm_status', 'appoint_hr' ,'appoint_min' , 'slot_nos'];
+    const columns = ['appoint_type', 'appoint_name', 'confirm_status', 'appoint_hr' ,'appoint_min' , 'slot_nos', 'op_number', 'appoint_status', 'doctor_view', 'bill_submit'];
     const query = 'SELECT ' + columns.join(',') + ' FROM appointments WHERE doctors_id = ? AND appoint_date = ?';
     const params = [post_data.doctor_id, post_data.appoint_date];
 
@@ -53,8 +53,9 @@ function prepareSlots(results){
     if(!Array.isArray(results[1])) return [];
 
     results[1].forEach(slot => {
+        slot.time = moment().set({hour:parseInt(slot.slots.split(":")[0]),minute: parseInt(slot.slots.split(":")[1])}).format("hh:mm A");
+        slot.status = appointmentStatus(slot);
         for (let index = 0; index < results[0].length; index++) {
-            slot.time = moment().set({hour:parseInt(slot.slots.split(":")[0]),minute: parseInt(slot.slots.split(":")[1])}).format("hh:mm A")
             if(betweenTime(results[0][index].appoint_hr, results[0][index].appoint_min,slot.slots)){
                 slot.appointment = results[0][index];
                 index = results[0].length;
@@ -74,6 +75,23 @@ function betweenTime(fromTime,toTime,slot) {
         return true;
     }
     else {return false;}
+}
+
+function appointmentStatus(aptObj){
+    let apt_status = {};
+    const apt_status = {
+        CONFIRMED:'CONFIRMED',
+        ARRIVED:'ARRIVED',
+        CLOSED:'CLOSED',
+        REGISTERED:'REGISTERED'
+    };
+    
+    (aptObj.op_number) ? apt_status.new_patient = false : apt_status.new_patient = true;
+    if(aptObj.confirm_status == 'Y') apt_status.apt_status = apt_status.CONFIRMED;
+    if(aptObj.doctor_view == 'Y') apt_status.apt_status = apt_status.ARRIVED;
+    if(aptObj.bill_submit == 'Y') apt_status.apt_status = apt_status.CLOSED;
+
+    return apt_status;
 }
 
 function getDocAppointment(post_data, next){
