@@ -32,6 +32,7 @@ function getDoctorSlots(post_data, next){
     if(!post_data) return next("NoPostData");
     const columns = ['apt_mstr.slots', 'apt_mstr.doctors_id', 'apt_mstr.slot_day'];
     const date = new Date(post_data.appoint_date);
+    console.log('**************************************** ', date.getDay(), ' ****************************************')
     const params = [post_data.appoint_date, post_data.appoint_date, post_data.doctor_id, date.getDay()];
     const join_query = 'SELECT ' + columns.join(',') + 
     ' FROM appointment_schmaster apt_mstr JOIN appointment_sch apt_sch ON ' +
