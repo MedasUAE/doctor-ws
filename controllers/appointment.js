@@ -1,6 +1,7 @@
 var db_query = require('../db/executeQuery');
 var async = require('async');
 var moment = require('moment');
+require('../config/global');
 
 function getById (id,next){
     const columns = ['appoint_type', 'appoint_date'];
@@ -18,7 +19,7 @@ function getByDoctorId (post_data,next){
     if(!post_data.appoint_date) return next("NoAptDate");
     if(!post_data.doctor_id) return next("NoDocID");
     
-    const columns = ['appoint_type', 'appoint_name', 'confirm_status', 'appoint_hr' ,'appoint_min' , 'slot_nos', 'op_number', 'appoint_status', 'doctor_view', 'bill_submit'];
+    const columns = global.appoint_select_cols;
     const query = 'SELECT ' + columns.join(',') + ' FROM appointments WHERE doctors_id = ? AND appoint_date = ?';
     const params = [post_data.doctor_id, post_data.appoint_date];
 
@@ -52,7 +53,6 @@ function getDoctorSlots(post_data, next){
 function prepareSlots(results){
     if(results.length < 2) return [];
     if(!Array.isArray(results[1])) return [];
-
     results[1].forEach(slot => {
         slot.time = moment().set({hour:parseInt(slot.slots.split(":")[0]),minute: parseInt(slot.slots.split(":")[1])}).format("hh:mm A");
         for (let index = 0; index < results[0].length; index++) {
@@ -107,12 +107,14 @@ function getDocAppointment(post_data, next){
         function(callback) {
             getDoctorSlots(post_data,(err,slots)=>{
                 if(err) return callback(err);
+                // console.log(slots);
                 callback(null, slots);
             })
         }
     ],
     // optional callback
     function(err, results) {
+        if(err) return next(err);
         return next(null,prepareSlots(results));
     });
 }
