@@ -59,7 +59,12 @@ function decriptToken(token, next){
 function login(user, next){
     checkUser(user,(err)=>{
         if(err) return next(err);
-        return next(null, getTocken(user));
+        const data = {
+            doctor_id: user.user_id,
+            tocken: getTocken(user),
+            name: user_label
+        }
+        return next(null, data);
     });
 }
 exports.isAuthenticate = isAuthenticate;
