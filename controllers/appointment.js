@@ -33,7 +33,6 @@ function getDoctorSlots(post_data, next){
     if(!post_data) return next("NoPostData");
     const columns = ['apt_mstr.slots', 'apt_mstr.doctors_id', 'apt_mstr.slot_day'];
     const date = new Date(post_data.appoint_date);
-    console.log('**************************************** ', date.getDay(), ' ****************************************')
     const params = [post_data.appoint_date, post_data.appoint_date, post_data.doctor_id, date.getDay()];
     const join_query = 'SELECT ' + columns.join(',') + 
     ' FROM appointment_schmaster apt_mstr JOIN appointment_sch apt_sch ON ' +
@@ -81,21 +80,13 @@ function betweenTime(fromTime,toTime,slot) {
 
 function appointmentStatus(aptObj){
     let status;
-    const enum_status = {
-        NOTCONFIRMED:'NOTCONFIRMED',
-        CONFIRMED:'CONFIRMED',
-        ARRIVED:'ARRIVED',
-        CLOSED:'CLOSED',
-        REGISTERED:'REGISTERED'
-    };
-    
-    (aptObj.confirm_status == 'Y') ? status = enum_status.CONFIRMED : status = enum_status.NOTCONFIRMED;
-    if(aptObj.doctor_view == 'Y') status = enum_status.ARRIVED;
-    if(aptObj.bill_submit == 'Y') status = enum_status.CLOSED;
-
+    (aptObj.confirm_status == 'Y') ? status = global.status.CONFIRMED : status = global.status.NOTCONFIRMED;
+    if(aptObj.doctor_view == 'Y') status = global.status.ARRIVED;
+    if(aptObj.bill_submit == 'Y') status = global.status.CLOSED;
+    if(aptObj.appoint_name.toUpperCase() == 'BLOCKED') status = global.status.BLOCKED;
     return status;
 }
-
+    
 function getDocAppointment(post_data, next){
     async.parallel([
         function(callback) {

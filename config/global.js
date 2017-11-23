@@ -6,7 +6,7 @@ global.day = {
     THURSDAY:4,
     FRIDAY:5,
     SATURDAY:6,
-}
+};
 
 global.appoint_select_cols = [
     'appoint_type', 
@@ -20,3 +20,12 @@ global.appoint_select_cols = [
     // 'doctor_view', 
     'bill_submit'
 ];
+
+global.status = {
+    NOTCONFIRMED:'NOTCONFIRMED',
+    CONFIRMED:'CONFIRMED',
+    ARRIVED:'ARRIVED',
+    CLOSED:'CLOSED',
+    REGISTERED:'REGISTERED',
+    BLOCKED: 'BLOCKED'
+};
