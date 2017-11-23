@@ -61,7 +61,7 @@ function login(user, next){
         if(err) return next(err);
         const data = {
             doctor_id: res.user_id,
-            tocken: getTocken(user),
+            token: getTocken(user),
             name: res.name
         }
         return next(null, data);
