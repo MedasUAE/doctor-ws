@@ -34,12 +34,12 @@ function isAuthenticate(req, res, next) {
 
 function checkUser(user, next) {
     if(!user) return next("NoUserObject");
-    const query = "SELECT * FROM user_setup WHERE user_Name ='" + user.username + "' AND user_password='" + user.password + "'"
+    const query = "SELECT user_id, user_label FROM user_setup WHERE user_Name ='" + user.username + "' AND user_password='" + user.password + "'"
     
     db_query.query(query, function (err, user) {
         if (err) return mext(err);
-        if (!user.length) return next("UserNotFound");
-        return next(null);
+        if (!user.length) return next("USERNOTFOUND");
+        return next(null, {user_id:user[0].user_id, name: user[0].user_label});
     });
 }
 
@@ -57,12 +57,12 @@ function decriptToken(token, next){
 }
 
 function login(user, next){
-    checkUser(user,(err)=>{
+    checkUser(user,(err, res)=>{
         if(err) return next(err);
         const data = {
-            doctor_id: user.user_id,
+            doctor_id: res.user_id,
             tocken: getTocken(user),
-            name: user_label
+            name: res.name
         }
         return next(null, data);
     });
