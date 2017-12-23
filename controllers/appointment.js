@@ -56,14 +56,24 @@ function prepareSlots(results){
         slot.time = moment().set({hour:parseInt(slot.slots.split(":")[0]),minute: parseInt(slot.slots.split(":")[1])}).format("hh:mm A");
         for (let index = 0; index < results[0].length; index++) {
             if(betweenTime(results[0][index].appoint_hr, results[0][index].appoint_min,slot.slots)){
-                (results[0][index].op_number) ? slot.new_patient = false : slot.new_patient = true;
-                slot.status = appointmentStatus(results[0][index]);
-                slot.appointment = results[0][index];
+                (results[0][index].op_number) ? slot.new_patient = false : slot.new_patient = true; //new patient Oldpatient flag
+                slot.status = appointmentStatus(results[0][index]); //status selection
+                slot.appointment = results[0][index]; // appointment object
                 index = results[0].length;
             }
         }
     });
     return results[1];
+}
+
+function prepareDashboard(results){
+    return [
+        { label: "CONFIRMED", value: 10},
+        { label: "ARRIVED", value: 10},
+        { label: "NEW", value: 10},
+        { label: "REVIST", value: 10},
+        { label: "TOTAL", value: 10},
+    ]
 }
 
 function betweenTime(fromTime,toTime,slot) {
@@ -106,7 +116,11 @@ function getDocAppointment(post_data, next){
     // optional callback
     function(err, results) {
         if(err) return next(err);
-        return next(null,prepareSlots(results));
+        let data = {
+            list:prepareSlots(results),
+            dashboard: prepareDashboard(results)
+        }
+        return next(null,data);
     });
 }
 

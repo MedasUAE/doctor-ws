@@ -15,24 +15,43 @@ module.exports = function(server){
 
     server.use(auth.isAuthenticate);
 
-    server.get('/appointment/:id',(req, res, next)=>{
+    server.get({ path:'/appointment/:id', version:'1.0.0' },(req, res, next)=>{
         appointment.getById(req.params.id,(err,response) => {
             if(err) return res.send(400, {DisplayMessage:err});
             return res.send(200,response);
         });
     });
 
-    server.post('/doc-appoint',(req, res, next)=>{ 
+    server.post({ path: '/doc-appoint', version: '1.0.0' },(req, res, next)=>{ 
+        appointment.getByDoctorId(req.body,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,{data:response.list});
+        });
+    });
+
+    server.post({ path: '/doc-timeslot', version: '1.0.0' }, (req, res, next)=>{
+        appointment.getDoctorSlots(req.body,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,{data:response});
+        });
+    }); 
+
+
+    /***********VERSION 2.0.0 *****************/
+
+    server.post({ path: '/doc-appoint', version: '2.0.0' },(req, res, next)=>{ 
         appointment.getByDoctorId(req.body,(err,response) => {
             if(err) return res.send(400, {DisplayMessage:err});
             return res.send(200,{data:response});
         });
     });
 
-    server.post('/doc-timeslot', (req, res, next)=>{ 
+    server.post({ path: '/doc-timeslot', version: '2.0.0' }, (req, res, next)=>{ 
         appointment.getDoctorSlots(req.body,(err,response) => {
             if(err) return res.send(400, {DisplayMessage:err});
             return res.send(200,{data:response});
         });
-    }); 
+    });
+    
+    
 }
