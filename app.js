@@ -41,7 +41,7 @@ const cors = corsMiddleware({
             req.headers['accept-version'] = version;
         }
         else if(server.versions.indexOf(version) == -1)
-            return res.json(400, {error: "version not supported"})
+            return res.send(400, {DisplayMessage:"VERSION NOT SUPPORT"});
     
         return next();
        
