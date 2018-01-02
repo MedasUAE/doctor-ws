@@ -67,12 +67,23 @@ function prepareSlots(results){
 }
 
 function prepareDashboard(results){
+    let CONFIRMED = 0, ARRIVED = 0, NOTCONFIRMED = 0, NEW = 0, REVISIT = 0, TOTAL = 0;
+    results.forEach(r=>{
+        if(r.appointment){
+            if (r.status == "CONFIRMED") CONFIRMED +=1;
+            if (r.status == "ARRIVED") ARRIVED +=1;
+            if (r.status == "NOTCONFIRMED") NOTCONFIRMED +=1;
+            if (!r.appointment.op_number)  NEW +=1;
+            if (r.appointment.op_number) REVISIT +=1;
+        }
+    });
     return [
-        { label: "CONFIRMED", value: 10},
-        { label: "ARRIVED", value: 10},
-        { label: "NEW", value: 10},
-        { label: "REVIST", value: 10},
-        { label: "TOTAL", value: 10},
+        { label: "NOT CONFIRMED", value: NOTCONFIRMED},
+        { label: "CONFIRMED", value: CONFIRMED},
+        { label: "ARRIVED", value: ARRIVED},
+        { label: "NEW", value: NEW},
+        { label: "REVISIT", value: REVISIT},
+        { label: "TOTAL", value: (NOTCONFIRMED+CONFIRMED+ARRIVED)},
     ]
 }
 
@@ -116,10 +127,8 @@ function getDocAppointment(post_data, next){
     // optional callback
     function(err, results) {
         if(err) return next(err);
-        let data = {
-            list:prepareSlots(results),
-            dashboard: prepareDashboard(results)
-        }
+        let data = {list:prepareSlots(results)};
+        data.dashboard = prepareDashboard(data.list);
         return next(null,data);
     });
 }
