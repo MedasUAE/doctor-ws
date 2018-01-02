@@ -1,6 +1,7 @@
 var db_query = require('../db/executeQuery');
 var async = require('async');
 var moment = require('moment');
+var apt_query = require('../db/appointmentQuery');
 require('../config/global');
 
 function getById (id,next){
@@ -14,13 +15,12 @@ function getById (id,next){
     })
 }
 
-function getByDoctorId (post_data,next){
+function getAppointmentByDoctorId (post_data,next){
     if(!post_data) return next("NoPOSTDATA");
     if(!post_data.appoint_date) return next("NoAptDate");
     if(!post_data.doctor_id) return next("NoDocID");
     
-    const columns = global.appoint_select_cols;
-    const query = 'SELECT ' + columns.join(',') + ' FROM appointments WHERE doctors_id = ? AND appoint_date = ?';
+    const query = apt_query.queryAppointmentByDoctorId();
     const params = [post_data.doctor_id, post_data.appoint_date];
 
     db_query.paramQuery(query, params, (err, result)=>{
@@ -31,18 +31,11 @@ function getByDoctorId (post_data,next){
 
 function getDoctorSlots(post_data, next){
     if(!post_data) return next("NoPostData");
-    const columns = ['apt_mstr.slots', 'apt_mstr.doctors_id', 'apt_mstr.slot_day'];
     const date = new Date(post_data.appoint_date);
     const params = [post_data.appoint_date, post_data.appoint_date, post_data.doctor_id, date.getDay()];
-    const join_query = 'SELECT ' + columns.join(',') + 
-    ' FROM appointment_schmaster apt_mstr JOIN appointment_sch apt_sch ON ' +
-    'apt_mstr.period_id = apt_sch.period_id WHERE ' +
-    'apt_sch.fromdate <= ? AND ' +
-    'apt_sch.todate >= ? AND ' + 
-    'apt_sch.doctors_id = ? AND ' +
-    'apt_sch.slot_day = ? AND ' +
-    'apt_sch.active_status = \'Y\'';
+    
 
+    const join_query = apt_query.queryDoctorSlots();
     db_query.paramQuery(join_query, params, (err, result)=>{
         if(err) return next(err);  
         return next(null,result);
@@ -111,7 +104,7 @@ function appointmentStatus(aptObj){
 function getDocAppointment(post_data, next){
     async.parallel([
         function(callback) {
-            getByDoctorId(post_data,(err,result)=>{
+            getAppointmentByDoctorId(post_data,(err,result)=>{
                 if(err) return callback(err);
                 callback(null, result);
             })

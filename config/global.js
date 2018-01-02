@@ -8,18 +8,18 @@ global.day = {
     SATURDAY:6,
 };
 
-global.appoint_select_cols = [
-    'appoint_type', 
-    'appoint_name', 
-    'confirm_status', 
-    'appoint_hr' ,
-    'appoint_min' , 
-    'slot_nos', 
-    'op_number', 
-    'appoint_status', 
-    // 'doctor_view', 
-    'bill_submit'
-];
+// global.appoint_select_cols = [
+//     'appoint_type', 
+//     'appoint_name', 
+//     'confirm_status', 
+//     'appoint_hr' ,
+//     'appoint_min' , 
+//     'slot_nos', 
+//     'op_number', 
+//     'appoint_status', 
+//     // 'doctor_view', 
+//     'bill_submit'
+// ];
 
 global.status = {
     NOTCONFIRMED:'NOTCONFIRMED',
