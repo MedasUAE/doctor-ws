@@ -32,8 +32,30 @@ function queryDoctorSlots(){
             'apt_sch.doctors_id = ? AND ' +
             'apt_sch.slot_day = ? AND ' +
             'apt_sch.active_status = \'Y\'';
+}
 
+function queryResourceSlots(){
+    const columns = [
+        'apt_mstr.slots', 
+        'apt_mstr.resource_id', 
+        'apt_mstr.slot_day'
+    ];
+    return  'SELECT ' + columns.join(',') + 
+            ' FROM appointment_schmaster_res apt_mstr JOIN appointment_sch_res apt_sch ON ' +
+            'apt_mstr.period_id = apt_sch.period_id WHERE ' +
+            'apt_sch.fromdate <= ? AND ' +
+            'apt_sch.todate >= ? AND ' + 
+            'apt_sch.resource_id IN (?) AND ' +
+            'apt_sch.slot_day = ? AND ' +
+            'apt_sch.active_status = \'Y\'';
+}
+
+function queryDistinctResources(){
+    return  'SELECT DISTINCT (resource_id)' +
+            ' FROM appointments WHERE doctors_id = ? AND appoint_date = ?';
 }
 
 exports.queryDoctorSlots = queryDoctorSlots;
+exports.queryResourceSlots = queryResourceSlots;
 exports.queryAppointmentByDoctorId = queryAppointmentByDoctorId;
+exports.queryDistinctResources = queryDistinctResources;

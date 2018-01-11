@@ -42,6 +42,31 @@ function getDoctorSlots(post_data, next){
     });
 }
 
+function getDistinctResources(post_data, next){
+    if(!post_data) return next("NoPostData");
+    const date = new Date(post_data.appoint_date);
+    const params = [post_data.doctor_id, post_data.appoint_date];
+    
+
+    const query = apt_query.queryDistinctResources();
+    db_query.paramQuery(query, params, (err, result)=>{
+        if(err) return next(err);  
+        return next(null,result);
+    });
+}
+
+function getResourceSlots(post_data, next){
+    if(!post_data) return next("NoPostData");
+    const date = new Date(post_data.appoint_date);
+    const params = [post_data.appoint_date, post_data.appoint_date, post_data.doctor_id, date.getDay()];
+
+    const join_query = apt_query.queryResourceSlots();
+    db_query.paramQuery(join_query, params, (err, result)=>{
+        if(err) return next(err);  
+        return next(null,result);
+    });
+}
+
 function prepareSlots(results){
     if(results.length < 2) return [];
     if(!Array.isArray(results[1])) return [];
@@ -115,6 +140,18 @@ function getDocAppointment(post_data, next){
                 // console.log(slots);
                 callback(null, slots);
             })
+        },
+        function (callback) {
+            getDistinctResources(post_data, (err, resouces)=>{
+                if(err) return callback(err);
+                callback(null, resouces);
+            });
+        },
+        function (callback) {
+            getResourceSlots(post_data, (err, resouceSlot)=>{
+                if(err) return callback(err);
+                callback(null, resouceSlots);
+            });
         }
     ],
     // optional callback
