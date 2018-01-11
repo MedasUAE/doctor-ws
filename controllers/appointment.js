@@ -148,7 +148,7 @@ function getDocAppointment(post_data, next){
             });
         },
         function (callback) {
-            getResourceSlots(post_data, (err, resouceSlot)=>{
+            getResourceSlots(post_data, (err, resouceSlots)=>{
                 if(err) return callback(err);
                 callback(null, resouceSlots);
             });
