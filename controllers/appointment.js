@@ -157,8 +157,10 @@ function getDocAppointment(post_data, next){
     // optional callback
     function(err, results) {
         if(err) return next(err);
-        console.log(results);
-        let data = {list:prepareSlots(results)};
+        // console.log(results);
+        // let data = {list:prepareSlots(results)};
+        let data = {list:results};
+
         data.dashboard = prepareDashboard(data.list);
         return next(null,data);
     });
