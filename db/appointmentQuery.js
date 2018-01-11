@@ -38,6 +38,7 @@ function queryResourceSlots(){
     const columns = [
         'apt_mstr.slots', 
         'apt_mstr.resource_id', 
+        'apt_sch.slots \'interval\'',
         'apt_mstr.slot_day'
     ];
     return  'SELECT ' + columns.join(',') + 
