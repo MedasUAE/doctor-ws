@@ -8,7 +8,10 @@ var config = require('./config/config');
 // Database connection
 db = mysql.createConnection(config.db);
 db.connect((err)=>{
-    if(err) throw err;
+    if(err) {
+        console.log("connection lost: ", err);
+        throw ex;
+    }
     console.log("DB '", config.db.database, "' Connected.");
 });
 

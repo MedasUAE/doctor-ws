@@ -13,10 +13,12 @@ function queryAppointmentByDoctorId(){
         'apt.doctor_view', 
         'apt.bill_submit',
         'office.office_Name',
-        'office.office_Id'
+        'office.office_Id',
+        'res.resource_Name'
     ];
     return  'SELECT ' + columns.join(',') + 
-            ' FROM appointments AS apt INNER JOIN office_details AS office ON apt.office_id = office.office_Id '+
+            ' FROM appointments AS apt JOIN office_details AS office ON apt.office_id = office.office_Id '+
+            'LEFT OUTER JOIN resource_name AS res ON apt.resource_id = res.resource_id '
             'WHERE apt.doctors_id = ? AND apt.appoint_date = ?';
 }
 
