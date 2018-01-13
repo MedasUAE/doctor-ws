@@ -16,7 +16,7 @@ function queryAppointmentByDoctorId(){
         'office.office_Id'
     ];
     return  'SELECT ' + columns.join(',') + 
-            ' FROM appointments as apt join office_details as office on apt.office_id = office.office_Id '+
+            ' FROM appointments AS apt INNER JOIN office_details AS office ON apt.office_id = office.office_Id '+
             'WHERE apt.doctors_id = ? AND apt.appoint_date = ?';
 }
 

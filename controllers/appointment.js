@@ -87,19 +87,17 @@ function getDistinctResourceSlots(post_data, next) {
 
 function prepareSlots(results){
     if(results.length < 2) return [];
-    // console.log(results[0]);
     if(!Array.isArray(results[2])) return [];
     results[2].forEach(slot => {
         slot.time = moment().set({hour:parseInt(slot.slots.split(":")[0]),minute: parseInt(slot.slots.split(":")[1])}).format("hh:mm A");
         slot.appointments = []
-        // console.log(slot);
         for (let index = 0; index < results[0].length; index++) {
             if(betweenTime(results[0][index].appoint_hr, results[0][index].appoint_min,slot.slots)){
                 (results[0][index].op_number) ? results[0][index].new_patient = false : results[0][index].new_patient = true; //new patient Oldpatient flag
-                // slot.status = appointmentStatus(results[0][index]); //status selection
                 results[0][index].status = appointmentStatus(results[0][index]); //status selection
-                // slot.appointment = results[0][index]; // appointment object
                 slot.appointments.push(results[0][index]);
+                // slot.status = appointmentStatus(results[0][index]); //status selection
+                // slot.appointment = results[0][index]; // appointment object
                 // index = results[0].length;
             }
         }
@@ -132,7 +130,7 @@ function prepareDashboard(results){
         { label: "NEW", value: NEW},
         { label: "REVISIT", value: REVISIT},
         { label: "TOTAL", value: (NOTCONFIRMED+CONFIRMED+ARRIVED)},
-    ]
+    ];
 }
 
 function betweenTime(fromTime,toTime,slot) {
