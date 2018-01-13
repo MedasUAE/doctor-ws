@@ -19,7 +19,7 @@ function queryAppointmentByDoctorId(){
     return  'SELECT ' + columns.join(',') + 
             ' FROM appointments AS apt JOIN office_details AS office ON apt.office_id = office.office_Id '+
             'LEFT OUTER JOIN resource_name AS res ON apt.resource_id = res.resource_id ' +
-            'WHERE apt.doctors_id = ? AND apt.appoint_date = ?';
+            'WHERE apt.doctors_id = ? AND apt.appoint_date = ? AND cancel_status=\'Y\'';
 }
 
 function queryDoctorSlots(){
