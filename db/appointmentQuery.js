@@ -1,5 +1,6 @@
 function queryAppointmentByDoctorId(){
     const columns = [
+        'apt.id',
         'apt.appoint_type', 
         'apt.appoint_name', 
         'apt.confirm_status', 
