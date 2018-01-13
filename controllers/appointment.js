@@ -149,7 +149,7 @@ function betweenTime(fromTime,toTime,slot) {
 
 function appointmentStatus(aptObj){
     let status;
-    (aptObj.confirm_status == 'Y') ? status = global.status.CONFIRMED : status = global.status.NOTCONFIRMED;
+    (aptObj.confirm_status == 'N' && aptObj.appoint_status == 'Y') ? status = global.status.CONFIRMED : status = global.status.NOTCONFIRMED;
     if(aptObj.doctor_view == 'Y') status = global.status.ARRIVED;
     if(aptObj.bill_submit == 'Y') status = global.status.CLOSED;
     if(aptObj.appoint_name.toUpperCase() == 'BLOCKED') status = global.status.BLOCKED;
