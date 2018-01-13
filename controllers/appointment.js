@@ -138,7 +138,7 @@ function betweenTime(fromTime,toTime,slot) {
     if(
         (parseInt(fromTime.replace(regExp, "$1$2$3")) <= parseInt(slot.replace(regExp,"$1$2$3")))
         &&
-        (parseInt(slot.replace(regExp,"$1$2$3")) <= parseInt(toTime.replace(regExp, "$1$2$3")))
+        (parseInt(slot.replace(regExp,"$1$2$3")) < parseInt(toTime.replace(regExp, "$1$2$3")))
     ){
         return true;
     }
