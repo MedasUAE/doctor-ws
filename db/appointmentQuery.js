@@ -10,7 +10,7 @@ function queryAppointmentByDoctorId(){
         'apt.appoint_status', 
         'apt.doctors_id',
         'apt.resource_id',
-        // 'apt.doctor_view', 
+        'apt.doctor_view', 
         'apt.bill_submit',
         'office.office_Name',
         'office.office_Id'
