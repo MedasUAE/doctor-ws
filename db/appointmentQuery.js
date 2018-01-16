@@ -15,7 +15,8 @@ function queryAppointmentByDoctorId(){
         'apt.bill_submit',
         'office.office_Name',
         'office.office_Id',
-        'res.resource_Name'
+        'res.resource_Name',
+        'res.appoint_purpose'
     ];
     return  'SELECT ' + columns.join(',') + 
             ' FROM appointments AS apt JOIN office_details AS office ON apt.office_id = office.office_Id '+
