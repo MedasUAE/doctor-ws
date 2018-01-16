@@ -106,14 +106,15 @@ function prepareSlots(results){
 }
 
 function prepareDashboard(results){
-    console.log(results.length);
-    let CONFIRMED = 0, ARRIVED = 0, NOTCONFIRMED = 0, NEW = 0, REVISIT = 0, TOTAL = 0, CLOSED = 0;
+    let CONFIRMED = 0, ARRIVED = 0, NOTCONFIRMED = 0, NEW = 0, REVISIT = 0, TOTAL = 0, CLOSED = 0, status;
     results.forEach(r=>{
-        switch (appointmentStatus(r)) {
+        status = appointmentStatus(r)
+        switch (status) {
             case "CONFIRMED":
                 CONFIRMED +=1;
                 break;
             case "ARRIVED":
+                console.log(ARRIVED);
                 ARRIVED +=1;
                 break;
             case "NOTCONFIRMED":
