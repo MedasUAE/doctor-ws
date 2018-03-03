@@ -24,6 +24,21 @@ function queryAppointmentByDoctorId(){
             'WHERE apt.doctors_id = ? AND apt.appoint_date = ? AND cancel_status=\'N\'';
 }
 
+function queryWeeklyAppointmentByDoctorId(){
+    const columns = [
+        'DATE_FORMAT(apt.appoint_date, "%l-%d-%Y") AS appoint_date',
+        'count(appoint_date) AS count'
+    ];
+    return  'SELECT ' + columns.join(',') + 
+            ' FROM appointments AS apt JOIN office_details AS office ON apt.office_id = office.office_Id '+
+            'LEFT OUTER JOIN resource_name AS res ON apt.resource_id = res.resource_id ' +
+            'WHERE apt.doctors_id = ? AND ' +
+            'apt.appoint_date >= ? AND ' +
+            'apt.appoint_date <= ? AND ' +
+            'cancel_status=\'N\'' +
+            'group by appoint_date';
+}
+
 function queryDoctorSlots(){
     const columns = [
         'apt_mstr.slots', 
@@ -66,3 +81,4 @@ exports.queryDoctorSlots = queryDoctorSlots;
 exports.queryResourceSlots = queryResourceSlots;
 exports.queryAppointmentByDoctorId = queryAppointmentByDoctorId;
 exports.queryDistinctResources = queryDistinctResources;
+exports.queryWeeklyAppointmentByDoctorId = queryWeeklyAppointmentByDoctorId;

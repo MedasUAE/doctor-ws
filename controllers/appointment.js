@@ -4,6 +4,7 @@ var moment = require('moment');
 var apt_query = require('../db/appointmentQuery');
 var helper = require('./helper');
 require('../config/global');
+const groupBy = require('lodash/groupBy');
 
 function getById (id,next){
     const columns = ['appoint_type', 'appoint_date'];
@@ -217,6 +218,29 @@ function getDocAppointment(post_data, next){
     });
 }
 
+// function groupByAppt(list){
+//     const aptList = groupBy(list,'appoint_date')
+//     let newGB = {};
+//     for(let apt in aptList){
+//         // console.log(moment(apt).format("YYYY-MM-DD"));
+//         newGB[moment(apt).format("YYYY-MM-DD")] = aptList[apt];
+//     }
+//     return newGB;
+// }
+
+function getWeeklyAppointment(post_data, next){
+    if(!post_data) return next("no post_data");
+    const query = apt_query.queryWeeklyAppointmentByDoctorId();
+    const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
+
+    db_query.paramQuery(query, params, (err, result)=>{
+        if(err) return next(err); 
+        return next(null,result);
+    });
+
+}
+
 exports.getById = getById;
 exports.getByDoctorId = getDocAppointment;
 exports.getDoctorSlots = getDoctorSlots;
+exports.getWeeklyAppointment = getWeeklyAppointment;

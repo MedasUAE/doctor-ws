@@ -10,7 +10,7 @@ db = mysql.createConnection(config.db);
 db.connect((err)=>{
     if(err) {
         console.log("connection lost: ", err);
-        throw ex;
+        // throw err;
     }
     console.log("DB '", config.db.database, "' Connected.");
 });
