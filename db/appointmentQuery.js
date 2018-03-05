@@ -26,7 +26,7 @@ function queryAppointmentByDoctorId(){
 
 function queryWeeklyAppointmentByDoctorId(){
     const columns = [
-        'DATE_FORMAT(apt.appoint_date, "%l-%d-%Y") AS appoint_date',
+        'DATE_FORMAT(apt.appoint_date, "%m-%d-%Y") AS appoint_date',
         'count(appoint_date) AS count'
     ];
     return  'SELECT ' + columns.join(',') + 
@@ -36,7 +36,7 @@ function queryWeeklyAppointmentByDoctorId(){
             'apt.appoint_date >= ? AND ' +
             'apt.appoint_date <= ? AND ' +
             'cancel_status=\'N\'' +
-            'group by appoint_date';
+            ' group by appoint_date';
 }
 
 function queryDoctorSlots(){

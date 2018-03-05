@@ -228,16 +228,44 @@ function getDocAppointment(post_data, next){
 //     return newGB;
 // }
 
+function transformWeekly(data){
+    const result = [], mod = data.length%2;
+    let index = 0;
+    function weekObject(obj){
+        return {
+            date: obj.appoint_date,
+            day: moment(obj.appoint_date).format("dddd, Do MMM").toUpperCase(),
+            // dayIndex: moment(obj.appoint_date).day(),
+            value: obj.count
+        }
+    }
+    for (let i = 0; i < data.length; i++) {
+        if(mod == 0)  addTwoObject()
+        else{
+            if(i == data.length - 2) addTwoObject();
+            else addSingleObject();
+        }
+        function addTwoObject(){
+            result.push([weekObject(data[i]),weekObject(data[i+1])]);
+            index += 1;
+            i = i + 1;
+        }
+        function addSingleObject(){
+            result.push([weekObject(data[i])]);
+            index = 0;
+        }
+    }
+    return result;
+}
+
 function getWeeklyAppointment(post_data, next){
     if(!post_data) return next("no post_data");
     const query = apt_query.queryWeeklyAppointmentByDoctorId();
     const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
-
     db_query.paramQuery(query, params, (err, result)=>{
-        if(err) return next(err); 
-        return next(null,result);
+        if(err) return next(err);         
+        return next(null,transformWeekly(result));
     });
-
 }
 
 exports.getById = getById;
