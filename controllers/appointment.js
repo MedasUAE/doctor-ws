@@ -243,15 +243,15 @@ function transformWeekly(data, denominator = 2){
     function daysArray(i, length){
         let arr = [];
         for (let index = 0; index < length; index++) {
-            arr.push(data[index + i]);
+            arr.push(dayObject(data[index + i]));
         }
         return arr;
     }
 
     function addMultiObject(i, length){
-        // console.log("i", i,"length",length, "total length", data.length);
         result.push(daysArray(i, length));
         return i + (length - 1);
+        // console.log("i", i,"length",length, "total length", data.length);
         // result.push([weekObject(data[i]),weekObject(data[i+1])]);
         // index += 1;
     }
