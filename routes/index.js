@@ -59,4 +59,11 @@ module.exports = function(server){
             return res.send(200,{data:response});
         });
     });
+
+    server.post({ path: '/month-appoint', version: '2.0.0' },(req, res, next)=>{ 
+        appointment.getMonthlyAppointment(req.body,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,{data:response});
+        });
+    });
 }

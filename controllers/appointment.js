@@ -228,32 +228,44 @@ function getDocAppointment(post_data, next){
 //     return newGB;
 // }
 
-function transformWeekly(data){
-    const result = [], mod = data.length%2;
-    let index = 0;
-    function weekObject(obj){
+function transformWeekly(data, denominator = 2){
+    const result = [], mod = data.length%denominator;
+    // let index = 0;
+    function dayObject(obj){
         return {
             date: obj.appoint_date,
             day: moment(obj.appoint_date).format("dddd, Do MMM").toUpperCase(),
-            // dayIndex: moment(obj.appoint_date).day(),
+            dayIndex: moment(obj.appoint_date).day(),
             value: obj.count
         }
     }
+
+    function daysArray(i, length){
+        let arr = [];
+        for (let index = 0; index < length; index++) {
+            arr.push(data[index + i]);
+        }
+        return arr;
+    }
+
+    function addMultiObject(i, length){
+        // console.log("i", i,"length",length, "total length", data.length);
+        result.push(daysArray(i, length));
+        return i + (length - 1);
+        // result.push([weekObject(data[i]),weekObject(data[i+1])]);
+        // index += 1;
+    }
+    // function addSingleObject(i){
+    //     result.push([dayObject(data[i])]);
+    //     // index = 0;
+    // }
+
     for (let i = 0; i < data.length; i++) {
-        if(mod == 0)  addTwoObject()
-        else{
-            if(i == data.length - 2) addTwoObject();
-            else addSingleObject();
-        }
-        function addTwoObject(){
-            result.push([weekObject(data[i]),weekObject(data[i+1])]);
-            index += 1;
-            i = i + 1;
-        }
-        function addSingleObject(){
-            result.push([weekObject(data[i])]);
-            index = 0;
-        }
+        if(mod == 0 || i <= data.length - denominator)  
+            i = addMultiObject(i, denominator);
+        else if(i < data.length)
+            i = addMultiObject(i, (data.length - i));
+        else i++;
     }
     return result;
 }
@@ -264,7 +276,17 @@ function getWeeklyAppointment(post_data, next){
     const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
     db_query.paramQuery(query, params, (err, result)=>{
         if(err) return next(err);         
-        return next(null,transformWeekly(result));
+        return next(null,transformWeekly(result, 2));
+    });
+}
+
+function getMonthlyAppointment(post_data, next){
+    if(!post_data) return next("no post_data");
+    const query = apt_query.queryWeeklyAppointmentByDoctorId();
+    const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
+    db_query.paramQuery(query, params, (err, result)=>{
+        if(err) return next(err);         
+        return next(null,transformWeekly(result, 7));
     });
 }
 
@@ -272,3 +294,4 @@ exports.getById = getById;
 exports.getByDoctorId = getDocAppointment;
 exports.getDoctorSlots = getDoctorSlots;
 exports.getWeeklyAppointment = getWeeklyAppointment;
+exports.getMonthlyAppointment = getMonthlyAppointment;
