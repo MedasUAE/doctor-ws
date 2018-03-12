@@ -228,49 +228,54 @@ function getDocAppointment(post_data, next){
 //     return newGB;
 // }
 
-function transformWeekly(data, denominator = 2){
-    const result = [], mod = data.length%denominator;
-    // console.log(moment(data[0].appoint_date).month())
-    // console.log(helper.mapAppointmentInMonth(data,moment(data[0].appoint_date)));
-    data = helper.mapAppointmentInMonth(data,moment(data[0].appoint_date))
-    // let index = 0;
-    function dayObject(obj){
-        return obj;
-        // return {
-        //     date: obj.appoint_date,
-        //     day: moment(obj.appoint_date).format("dddd, Do MMM").toUpperCase(),
-        //     value: obj.count
-        // }
-    }
-
-    function daysArray(i, length){
-        let arr = [];
-        for (let index = 0; index < length; index++) {
-            arr.push(dayObject(data[index + i]));
-        }
-        return arr;
-    }
-
-    function addMultiObject(i, length){
-        result.push(daysArray(i, length));
-        return i + (length - 1);
-        // console.log("i", i,"length",length, "total length", data.length);
-        // result.push([weekObject(data[i]),weekObject(data[i+1])]);
-        // index += 1;
-    }
-    // function addSingleObject(i){
-    //     result.push([dayObject(data[i])]);
-    //     // index = 0;
+function transformMonthly(data, denominator = 2){
+    return helper.makeResult(data,denominator, "month");
+    // const result = [], mod = data.length%denominator;
+    // // console.log(moment(data[0].appoint_date).month())
+    // // console.log(helper.mapAppointmentInMonth(data,moment(data[0].appoint_date)));
+    // data = helper.mapAppointmentInMonth(data,moment(data[0].appoint_date))
+    // // let index = 0;
+    // function dayObject(obj){
+    //     return obj;
+    //     // return {
+    //     //     date: obj.appoint_date,
+    //     //     day: moment(obj.appoint_date).format("dddd, Do MMM").toUpperCase(),
+    //     //     value: obj.count
+    //     // }
     // }
 
-    for (let i = 0; i < data.length; i++) {
-        if(mod == 0 || i <= data.length - denominator)  
-            i = addMultiObject(i, denominator);
-        else if(i < data.length)
-            i = addMultiObject(i, (data.length - i));
-        else i++;
-    }
-    return result;
+    // function daysArray(i, length){
+    //     let arr = [];
+    //     for (let index = 0; index < length; index++) {
+    //         arr.push(dayObject(data[index + i]));
+    //     }
+    //     return arr;
+    // }
+
+    // function addMultiObject(i, length){
+    //     result.push(daysArray(i, length));
+    //     return i + (length - 1);
+    //     // console.log("i", i,"length",length, "total length", data.length);
+    //     // result.push([weekObject(data[i]),weekObject(data[i+1])]);
+    //     // index += 1;
+    // }
+    // // function addSingleObject(i){
+    // //     result.push([dayObject(data[i])]);
+    // //     // index = 0;
+    // // }
+
+    // for (let i = 0; i < data.length; i++) {
+    //     if(mod == 0 || i <= data.length - denominator)  
+    //         i = addMultiObject(i, denominator);
+    //     else if(i < data.length)
+    //         i = addMultiObject(i, (data.length - i));
+    //     else i++;
+    // }
+    // return result;
+}
+
+function transformWeekly(data){
+    return helper.makeResult(data,1,"week")
 }
 
 function getWeeklyAppointment(post_data, next){
@@ -279,7 +284,7 @@ function getWeeklyAppointment(post_data, next){
     const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
     db_query.paramQuery(query, params, (err, result)=>{
         if(err) return next(err);         
-        return next(null,transformWeekly(result, 2));
+        return next(null,transformWeekly(result));
     });
 }
 
@@ -289,7 +294,7 @@ function getMonthlyAppointment(post_data, next){
     const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
     db_query.paramQuery(query, params, (err, result)=>{
         if(err) return next(err);         
-        return next(null,transformWeekly(result, 7));
+        return next(null,transformMonthly(result, 7));
     });
 }
 

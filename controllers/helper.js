@@ -65,14 +65,19 @@ function getMonthDates(date){
     endWeek = moment(date).endOf('month').week(),
     endDay = moment(date).endOf('month').day('Saturday').week(endWeek),
     startDay = moment(date).startOf('month').day('Sunday').week(startWeek);
+
+    //dayObj
+    function getDayObj(date){
+        return {
+            date: moment(date).add(index,'day').format("YYYY-MM-DD"),
+            day: moment(date).add(index,'day').format("D").toUpperCase(),
+            value: 0
+        }
+    }
     
     index = startDay.diff(startMonthDate,'day');
     while(index<0){
-        days.push({
-            date: moment(startDateOfMonth).add(index,'day').format("ddd"),
-            day: moment(startDateOfMonth).add(index,'day').format("D").toUpperCase(),
-            value: 0
-        });
+        days.push(getDayObj(startDateOfMonth));
         index++; 
     }
     index++; // increament by one to avoid duplicate
@@ -89,29 +94,70 @@ function getMonthDates(date){
     daysInMonth = endDay.diff(startMonthDate,'day');
     index = 1 //reinitialization
     while(index <= daysInMonth){
+        days.push(getDayObj(lastDateOfMonth))
+        index++;  
+    }
+    return days;
+}
+
+function getWeekDates(date){
+    let index = 0, days = [];
+    while(index < 7){
         days.push({
-            date: moment(lastDateOfMonth).add(index,'day').format("ddd"),
-            day: moment(lastDateOfMonth).add(index,'day').format("D").toUpperCase(),
-            value: 0
+            date: moment(date).add(index,'day').format("YYYY-MM-DD"),
+            day: moment(date).add(index,'day').format("dddd, Do MMMM YY").toUpperCase(),
+            value: 0,
+            currentMonth: true
         })
         index++;  
     }
     return days;
 }
 
-function mapAppointmentInMonth(appointments, date){
-    monthsDays = getMonthDates(date);
-    monthsDays.forEach(day=>{
+function mapAppointment(appointments, date, type){
+    if(type == "month") days = getMonthDates(date);
+    else days = getWeekDates(date);
+
+    days.forEach(day=>{
         const aptObj = find(appointments, (apt)=>{
             return apt.appoint_date == day.date;
         });
         if(aptObj) day.value = aptObj.count;
     });
 
-    return monthsDays
+    return days
+}
+
+function makeResult(data, denominator=2, type="week"){
+    const result = [], mod = data.length%denominator;
+    data = mapAppointment(data,moment(data[0].appoint_date), type)
+    
+    function daysArray(i, length){
+        let arr = [];
+        for (let index = 0; index < length; index++) {
+            arr.push(data[index + i]);
+        }
+        return arr;
+    }
+
+    function addMultiObject(i, length){
+        result.push(daysArray(i, length));
+        return i + (length - 1);
+    }
+    
+    for (let i = 0; i < data.length; i++) {
+        if(mod == 0 || i <= data.length - denominator)  
+            i = addMultiObject(i, denominator);
+        else if(i < data.length)
+            i = addMultiObject(i, (data.length - i));
+        else i++;
+    }
+    return result;
 }
 
 exports.getMinMaxTime = getMinMaxTime;
 exports.makeSlots = makeSlots;
 exports.getMonthDates = getMonthDates;
-exports.mapAppointmentInMonth = mapAppointmentInMonth;
+exports.getWeekDates = getWeekDates;
+exports.makeResult = makeResult;
+exports.mapAppointmentInMonth = mapAppointment;
