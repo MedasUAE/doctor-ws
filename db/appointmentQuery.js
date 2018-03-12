@@ -24,9 +24,9 @@ function queryAppointmentByDoctorId(){
             'WHERE apt.doctors_id = ? AND apt.appoint_date = ? AND cancel_status=\'N\'';
 }
 
-function queryWeeklyAppointmentByDoctorId(){
+function queryAppointmentByRange(){
     const columns = [
-        'DATE_FORMAT(apt.appoint_date, "%m-%d-%Y") AS appoint_date',
+        'DATE_FORMAT(apt.appoint_date, "%Y-%m-%d") AS appoint_date',
         'count(appoint_date) AS count'
     ];
     return  'SELECT ' + columns.join(',') + 
@@ -81,4 +81,4 @@ exports.queryDoctorSlots = queryDoctorSlots;
 exports.queryResourceSlots = queryResourceSlots;
 exports.queryAppointmentByDoctorId = queryAppointmentByDoctorId;
 exports.queryDistinctResources = queryDistinctResources;
-exports.queryWeeklyAppointmentByDoctorId = queryWeeklyAppointmentByDoctorId;
+exports.queryAppointmentByRange = queryAppointmentByRange;

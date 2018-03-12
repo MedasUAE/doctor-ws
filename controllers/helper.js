@@ -1,3 +1,6 @@
+var moment = require('moment');
+const find = require('lodash/find');
+
 function getMinMaxTime(list){
     let min,max;
     const regExp = /(\d{1,2})\:(\d{1,2})/;
@@ -51,5 +54,64 @@ function makeSlots(minTime, maxTime, interval){
     }
 }
 
+function getMonthDates(date){
+    let daysInMonth = moment(date).daysInMonth(),
+    index = 1,
+    days = [];
+    const startMonthDate = moment(date).startOf('month'),
+    startDateOfMonth = moment(date).startOf('month').format("YYYY-MM-DD"),
+    lastDateOfMonth = moment(date).endOf('month').format("YYYY-MM-DD"),
+    startWeek = moment(date).startOf('month').week(),
+    endWeek = moment(date).endOf('month').week(),
+    endDay = moment(date).endOf('month').day('Saturday').week(endWeek),
+    startDay = moment(date).startOf('month').day('Sunday').week(startWeek);
+    
+    index = startDay.diff(startMonthDate,'day');
+    while(index<0){
+        days.push({
+            date: moment(startDateOfMonth).add(index,'day').format("ddd"),
+            day: moment(startDateOfMonth).add(index,'day').format("D").toUpperCase(),
+            value: 0
+        });
+        index++; 
+    }
+    index++; // increament by one to avoid duplicate
+    while(index <= daysInMonth){
+        days.push({
+            date: startMonthDate.date(index).format("YYYY-MM-DD"),
+            day: startMonthDate.date(index).format("D").toUpperCase(),
+            value: 0,
+            currentMonth: true
+        })
+        index++;  
+    }
+
+    daysInMonth = endDay.diff(startMonthDate,'day');
+    index = 1 //reinitialization
+    while(index <= daysInMonth){
+        days.push({
+            date: moment(lastDateOfMonth).add(index,'day').format("ddd"),
+            day: moment(lastDateOfMonth).add(index,'day').format("D").toUpperCase(),
+            value: 0
+        })
+        index++;  
+    }
+    return days;
+}
+
+function mapAppointmentInMonth(appointments, date){
+    monthsDays = getMonthDates(date);
+    monthsDays.forEach(day=>{
+        const aptObj = find(appointments, (apt)=>{
+            return apt.appoint_date == day.date;
+        });
+        if(aptObj) day.value = aptObj.count;
+    });
+
+    return monthsDays
+}
+
 exports.getMinMaxTime = getMinMaxTime;
 exports.makeSlots = makeSlots;
+exports.getMonthDates = getMonthDates;
+exports.mapAppointmentInMonth = mapAppointmentInMonth;

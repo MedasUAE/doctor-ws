@@ -230,14 +230,17 @@ function getDocAppointment(post_data, next){
 
 function transformWeekly(data, denominator = 2){
     const result = [], mod = data.length%denominator;
+    // console.log(moment(data[0].appoint_date).month())
+    // console.log(helper.mapAppointmentInMonth(data,moment(data[0].appoint_date)));
+    data = helper.mapAppointmentInMonth(data,moment(data[0].appoint_date))
     // let index = 0;
     function dayObject(obj){
-        return {
-            date: obj.appoint_date,
-            day: moment(obj.appoint_date).format("dddd, Do MMM").toUpperCase(),
-            dayIndex: moment(obj.appoint_date).day(),
-            value: obj.count
-        }
+        return obj;
+        // return {
+        //     date: obj.appoint_date,
+        //     day: moment(obj.appoint_date).format("dddd, Do MMM").toUpperCase(),
+        //     value: obj.count
+        // }
     }
 
     function daysArray(i, length){
@@ -272,7 +275,7 @@ function transformWeekly(data, denominator = 2){
 
 function getWeeklyAppointment(post_data, next){
     if(!post_data) return next("no post_data");
-    const query = apt_query.queryWeeklyAppointmentByDoctorId();
+    const query = apt_query.queryAppointmentByRange();
     const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
     db_query.paramQuery(query, params, (err, result)=>{
         if(err) return next(err);         
@@ -282,7 +285,7 @@ function getWeeklyAppointment(post_data, next){
 
 function getMonthlyAppointment(post_data, next){
     if(!post_data) return next("no post_data");
-    const query = apt_query.queryWeeklyAppointmentByDoctorId();
+    const query = apt_query.queryAppointmentByRange();
     const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
     db_query.paramQuery(query, params, (err, result)=>{
         if(err) return next(err);         
