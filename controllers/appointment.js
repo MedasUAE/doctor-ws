@@ -279,23 +279,35 @@ function transformWeekly(data){
 }
 
 function getWeeklyAppointment(post_data, next){
-    if(!post_data) return next("no post_data");
-    const query = apt_query.queryAppointmentByRange();
-    const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
-    db_query.paramQuery(query, params, (err, result)=>{
-        if(err) return next(err);         
-        return next(null,transformWeekly(result));
-    });
+    try {
+        if(!post_data) return next("no post_data");
+        const query = apt_query.queryAppointmentByRange();
+        const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
+        db_query.paramQuery(query, params, (err, result)=>{
+            if(err) return next(err);         
+            return next(null,transformWeekly(result));
+        });
+    } catch (error) {
+        return next(null,[]);
+    }
+    
 }
 
 function getMonthlyAppointment(post_data, next){
-    if(!post_data) return next("no post_data");
-    const query = apt_query.queryAppointmentByRange();
-    const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
-    db_query.paramQuery(query, params, (err, result)=>{
-        if(err) return next(err);         
-        return next(null,transformMonthly(result, 7));
-    });
+    try {
+        if(!post_data) return next("no post_data");
+        const query = apt_query.queryAppointmentByRange();
+        const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
+        db_query.paramQuery(query, params, (err, result)=>{
+            if(err) return next(err); 
+            if(!result) return next("noresult");       
+            // if(!result.length) return next(null, result); 
+            return next(null,transformMonthly(result, 7));
+        });
+    } catch (error) {
+        console.log("***** new error ***");
+        return new Error(error);      
+    }
 }
 
 exports.getById = getById;

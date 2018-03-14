@@ -1,6 +1,7 @@
 var restify = require('restify');
 var plugins = require('restify').plugins;
 const corsMiddleware = require('restify-cors-middleware')
+
 var mysql = require('mysql');
 
 var config = require('./config/config');
@@ -57,7 +58,7 @@ const cors = corsMiddleware({
         // return next(null)
 
     });
-    server.use(cors.actual)
+    server.use(cors.actual);
 
 // server.use(plugins.authorizationParser()); //basic autherization
 // server.use(auth.isAuthenticate);

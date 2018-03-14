@@ -1,7 +1,9 @@
 // export * from './appointment';
 
 var appointment = require('../controllers/appointment');
+var logs = require('../controllers/logs');
 var auth = require('../controllers/authenticate');
+var errs = require('restify-errors');
 
 module.exports = function(server){
 
@@ -36,6 +38,12 @@ module.exports = function(server){
         });
     }); 
 
+    server.get({path:'/getlog', version:'1.0.0'}, (req, res, next)=>{
+        logs.getlog(req.body,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,{data:response});
+        });
+    });
 
     /***********VERSION 2.0.0 *****************/
 

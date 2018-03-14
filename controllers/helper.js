@@ -1,5 +1,6 @@
 var moment = require('moment');
 const find = require('lodash/find');
+const log = require('./logs');
 
 function getMinMaxTime(list){
     let min,max;
@@ -129,30 +130,39 @@ function mapAppointment(appointments, date, type){
 }
 
 function makeResult(data, denominator=2, type="week"){
+    if(!data.length) return [];
     const result = [], mod = data.length%denominator;
-    data = mapAppointment(data,moment(data[0].appoint_date), type)
+    try {
+        data = mapAppointment(data,moment(data[0].appoint_date), type)
     
-    function daysArray(i, length){
-        let arr = [];
-        for (let index = 0; index < length; index++) {
-            arr.push(data[index + i]);
+        function daysArray(i, length){
+            let arr = [];
+            for (let index = 0; index < length; index++) {
+                arr.push(data[index + i]);
+            }
+            return arr;
         }
-        return arr;
+
+        function addMultiObject(i, length){
+            result.push(daysArray(i, length));
+            return i + (length - 1);
+        }
+        
+        for (let i = 0; i < data.length; i++) {
+            if(mod == 0 || i <= data.length - denominator)  
+                i = addMultiObject(i, denominator);
+            else if(i < data.length)
+                i = addMultiObject(i, (data.length - i));
+            else i++;
+        }
+        return result;
+    } catch (error) {
+        const err = error.toString() + " file: helper.js ";
+        log.addLog({datetime:moment().format("YYYY-MM-DD HH:mm:SS"), error:err, action:"makeResult"})
+        return result;
     }
 
-    function addMultiObject(i, length){
-        result.push(daysArray(i, length));
-        return i + (length - 1);
-    }
     
-    for (let i = 0; i < data.length; i++) {
-        if(mod == 0 || i <= data.length - denominator)  
-            i = addMultiObject(i, denominator);
-        else if(i < data.length)
-            i = addMultiObject(i, (data.length - i));
-        else i++;
-    }
-    return result;
 }
 
 exports.getMinMaxTime = getMinMaxTime;
