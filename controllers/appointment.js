@@ -228,8 +228,8 @@ function getDocAppointment(post_data, next){
 //     return newGB;
 // }
 
-function transformMonthly(data, denominator = 2){
-    return helper.makeResult(data,denominator, "month");
+function transformMonthly(data, date,  denominator = 2){
+    return helper.makeResult(data,date,denominator, "month");
     // const result = [], mod = data.length%denominator;
     // // console.log(moment(data[0].appoint_date).month())
     // // console.log(helper.mapAppointmentInMonth(data,moment(data[0].appoint_date)));
@@ -274,8 +274,8 @@ function transformMonthly(data, denominator = 2){
     // return result;
 }
 
-function transformWeekly(data){
-    return helper.makeResult(data,1,"week")
+function transformWeekly(data, date){
+    return helper.makeResult(data,date,1,"week")
 }
 
 function getWeeklyAppointment(post_data, next){
@@ -285,7 +285,7 @@ function getWeeklyAppointment(post_data, next){
         const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
         db_query.paramQuery(query, params, (err, result)=>{
             if(err) return next(err);         
-            return next(null,transformWeekly(result));
+            return next(null,transformWeekly(result, post_data.start_appoint_date));
         });
     } catch (error) {
         return next(null,[]);
@@ -302,7 +302,7 @@ function getMonthlyAppointment(post_data, next){
             if(err) return next(err); 
             if(!result) return next("noresult");       
             // if(!result.length) return next(null, result); 
-            return next(null,transformMonthly(result, 7));
+            return next(null,transformMonthly(result, post_data.start_appoint_date, 7));
         });
     } catch (error) {
         console.log("***** new error ***");

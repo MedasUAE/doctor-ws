@@ -129,12 +129,12 @@ function mapAppointment(appointments, date, type){
     return days
 }
 
-function makeResult(data, denominator=2, type="week"){
-    if(!data.length) return [];
+function makeResult(data, date, denominator=2, type="week"){
+    if(!data) return [];
     const result = [], mod = data.length%denominator;
     try {
-        data = mapAppointment(data,moment(data[0].appoint_date), type)
-    
+        data = mapAppointment(data,date,type)
+        
         function daysArray(i, length){
             let arr = [];
             for (let index = 0; index < length; index++) {
