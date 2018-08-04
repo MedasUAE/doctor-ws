@@ -1,4 +1,3 @@
-// export * from './appointment';
 
 var appointment = require('../controllers/appointment');
 var logs = require('../controllers/logs');
@@ -15,7 +14,7 @@ module.exports = function(server){
         });
     });
 
-    server.use(auth.isAuthenticate);
+    //server.use(auth.isAuthenticate);
 
     server.get({ path:'/appointment/:id', version:'1.0.0' },(req, res, next)=>{
         appointment.getById(req.params.id,(err,response) => {
@@ -44,6 +43,49 @@ module.exports = function(server){
             return res.send(200,{data:response});
         });
     });
+
+    server.get({ path:'/patient-detail/:id', version:'1.0.0' },(req, res, next)=>{
+        appointment.getPatientDetailByOpNumber(req.params.id,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,response);
+        });
+    });
+
+    server.get({ path:'/outpatientlist', version:'1.0.0' },(req, res, next)=>{
+        appointment.getOutPatientList(req.query.consultDate,req.query.officeId,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,response);
+        });
+    });
+
+    server.get({ path:'/appointmentlist/:id', version:'1.0.0' },(req, res, next)=>{
+        appointment.getAppointmentListByOpNumber(req.params.id,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,response);
+        });
+    });
+
+    server.get({ path:'/vitallist/:id', version:'1.0.0' },(req, res, next)=>{
+        appointment.getVitalListByConsultId(req.params.id,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,response);
+        });
+    });
+
+    server.get({ path:'/testdetaillist/:id', version:'1.0.0' },(req, res, next)=>{
+        appointment.getTestdetailListByConsultId(req.params.id,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,response);
+        });
+    });
+
+    server.get({ path:'/examinationdetaillist/:id', version:'1.0.0' },(req, res, next)=>{
+        appointment.getExaminationDetailListByConsultId(req.params.id,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,response);
+        });
+    });
+
 
     /***********VERSION 2.0.0 *****************/
 
@@ -74,4 +116,6 @@ module.exports = function(server){
             return res.send(200,{data:response});
         });
     });
+
+   
 }

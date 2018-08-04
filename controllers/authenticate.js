@@ -1,30 +1,23 @@
 var db_query = require('../db/executeQuery');
-var jwt = require('jsonwebtoken');
+var redis = require('../utils/redis');
+const bcrypt = require('bcrypt')
 
 function authenticate(token, next) {
-    decriptToken(token, (err,user)=>{
-        if(err) return next(err);
-
-        checkUser(user, (err)=>{
-            if(err) return next(err);
-            return next(null, user)
-        });
-    })
-}
-
-function isAuthenticate(req, res, next){
-
+    checkUserRedis(token, (err, result) => {
+        if (err) return next(err);
+        return next(null, result)
+    });
 }
 
 function isAuthenticate(req, res, next) {
     const bearerHeader = req.headers["authorization"];
     if (typeof bearerHeader !== 'undefined') {
       const bearer = bearerHeader.split(" ");
-      const bearerToken = bearer[1];
+      const bearerToken = bearer[0];
       req.token = bearerToken;
-      authenticate(req.token,(err,user)=>{
+      authenticate(req.token,(err,commaSeparatedNameAndPass)=>{
           if(err) return res.send(403, err);
-          req.user = user;
+          req.user = commaSeparatedNameAndPass;
           return next();
       })
     } else {
@@ -37,34 +30,47 @@ function checkUser(user, next) {
     const query = "SELECT user_id, user_label FROM user_setup WHERE user_Name ='" + user.username + "' AND user_password='" + user.password + "'"
     
     db_query.query(query, function (err, user) {
-        if (err) return mext(err);
+        if (err) return next(err);
         if (!user.length) return next("USERNOTFOUND");
-        return next(null, {user_id:user[0].user_id, name: user[0].user_label});
+        return next(null, {user_id:user[0].user_id, user_label: user[0].user_label});
     });
 }
 
-function getTocken(user){
-    const token = jwt.sign(user,"secret_key_goes_here");
-    return token;
-}
-
-function decriptToken(token, next){
-    if(!token) return next("NOTOKEN");
-    jwt.verify(token, 'secret_key_goes_here', function(err, data) {
-        if (err) return next("INVALIDTOKEN")
-        else return next(null, data)
-    });
-}
-
-function login(user, next){
-    checkUser(user,(err, res)=>{
+function login(postData, next){
+    var accessTime = Date.now();
+    var commaSeparatedNameAndPass = accessTime + ',' + postData.username + ',' + postData.password;
+    checkUser(postData,(err, res)=>{
         if(err) return next(err);
         const data = {
             doctor_id: res.user_id,
-            token: getTocken(user),
-            name: res.name
+            token: generateTocken(postData),
+            name: res.user_label
         }
+        redis.setData(data.token, commaSeparatedNameAndPass, (err, reply) => {
+            if (err) return next(err);
+        });
         return next(null, data);
+    });
+}
+
+function generateTocken(postData) {
+    var round = 10;
+    const salt = bcrypt.genSaltSync(round)
+    const token = bcrypt.hashSync(postData.username + ',' + postData.password, salt)
+    return token;
+}
+
+function checkUserRedis(token, next) {
+    if (!token) return next("NoToken");
+    redis.getData(token, (err, result) => {
+        if (err) return next(err);
+        if (!result) return next("Invald Token");
+        const tokenValues = result.split(',');
+        const commaSeparatedNameAndPass = Date.now() + ',' + tokenValues[1] + ',' + tokenValues[2];
+        redis.setData(token, commaSeparatedNameAndPass, (err, reply) => {
+            if (err) return next(err);
+            return next(null, result);
+        });
     });
 }
 exports.isAuthenticate = isAuthenticate;

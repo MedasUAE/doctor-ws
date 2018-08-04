@@ -77,8 +77,78 @@ function queryDistinctResources(){
             ' FROM appointments WHERE doctors_id = ? AND appoint_date = ?';
 }
 
+function queryPatientDetailByOpNumber(){
+    const columns = [
+        'op_id', 'registration_date','patient_name','mobile','patient_email','mother_name'
+    ];
+    return  'select ' + columns.join(',') +' from new_registration where op_number = ?';
+}
+
+function getOutPatientList(){
+    const columns = [
+        'op_id', 'registration_date','patient_name','mobile','patient_email','mother_name'
+    ];
+    return  'select ' + columns.join(',') +' from new_registration where op_number = ?';
+}
+
+function queryAppointmentListByOpNumber(){
+    const columns = [
+        'dc.consult_id', 'dc.consult_date','ds.doctors_name','od.office_Name'
+    ];
+    return  ' select distinct ' + columns.join(',') +' FROM doctor_consult dc ' +
+    'JOIN doctors_setup ds ON dc.doctors_id = ds.doctors_id ' +
+    'JOIN doctors_office do ON do.office_id = dc.office_id ' +
+    'JOIN office_details od ON od.office_id = do.office_id ' +
+    'where dc.op_number= ?';
+}
+
+function queryVitalListByConsultId(){
+    const columns = [
+        ' vsm.vital_sign', 'vsm.vital_type','vs.value'
+    ];
+    return  ' select distinct ' + columns.join(',') +' FROM vitalsign_master vsm ' +
+    'JOIN vital_signs vs ON vs.vital_sign = vsm.id ' +
+     'where  vs.consult_id= ? and vsm.active_status=\'Y\'';
+}
+
+function queryTestdetailListByConsultId(){
+    const columns = [
+        ' docCon.consult_id', 'docCon.op_number',
+        'testSet.test_id','testSet.test_Name',
+        'testptrset.parameter_id','testptrset.parameter_name','testptrset.group_name',
+        'testSet.amount',
+        'testDtls.remarks','testDtls.test_Date','testDtls.sms_status',
+        ' testresults.test_Result' 
+    ];
+    return  ' select distinct ' + columns.join(',') +' FROM Test_Details testDtls ' +
+    'inner JOIN doctor_Consult docCon  ON docCon.consult_id = testDtls.consult_id ' +
+    ' INNER JOIN test_Setup testSet  ON testDtls.test_id = testSet.test_Id ' +
+    'INNER JOIN test_results testresults  ON testresults.test_Detailsid = testDtls.test_Detailsid ' +
+    'INNER JOIN test_parameter_setup testptrset  ON testptrset.parameter_id = testresults.parameter_id ' +
+     ' where docCon.consult_id= ?';
+}
+
+function queryExaminationDetailListByConsultId(){
+    const columns = [
+        ' testdtls.consult_id','testdtls.op_number','testdtls.remarks','testdtls.test_Date','testdtls.test_Status',
+        'conlabtest.labtest_price',
+        'attacheddoc.document_Filename'
+    ];
+    return  ' select distinct ' + columns.join(',') +' FROM consult_labtest conlabtest ' +
+    'inner join test_details  testdtls on testdtls.consult_id= conlabtest.consult_id  ' +
+    ' inner join test_setup  testset on testset.test_Id= testdtls.test_id  ' +
+    'inner join attacheddocuments  attacheddoc on attacheddoc.consult_id= testdtls.consult_id ' +
+     ' where testdtls.consult_id=? and testset.lab_type=\'X\'';
+}
+
 exports.queryDoctorSlots = queryDoctorSlots;
 exports.queryResourceSlots = queryResourceSlots;
 exports.queryAppointmentByDoctorId = queryAppointmentByDoctorId;
 exports.queryDistinctResources = queryDistinctResources;
 exports.queryAppointmentByRange = queryAppointmentByRange;
+exports.queryPatientDetailByOpNumber = queryPatientDetailByOpNumber;
+exports.getOutPatientList = getOutPatientList;
+exports.queryAppointmentListByOpNumber = queryAppointmentListByOpNumber;
+exports.queryVitalListByConsultId = queryVitalListByConsultId;
+exports.queryTestdetailListByConsultId = queryTestdetailListByConsultId;
+exports.queryExaminationDetailListByConsultId = queryExaminationDetailListByConsultId;

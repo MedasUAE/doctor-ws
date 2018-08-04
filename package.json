@@ -11,10 +11,12 @@
   "license": "ISC",
   "dependencies": {
     "async": "^2.6.0",
+    "bcrypt": "^2.0.1",
     "jsonwebtoken": "^8.1.0",
     "lodash": "^4.17.5",
     "moment": "^2.19.2",
     "mysql": "^2.15.0",
+    "redis": "^2.8.0",
     "restify": "^6.3.2",
     "restify-cors-middleware": "^1.0.1"
   }
