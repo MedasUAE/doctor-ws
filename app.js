@@ -34,6 +34,7 @@ const cors = corsMiddleware({
 
 
     server.use(plugins.bodyParser({ mapParams: false })); //for body data 
+    server.use(restify.plugins.queryParser());//for query params 
     server.pre(cors.preflight)
     server.pre((req,res,next)=>{
         let pieces = req.url.replace(/^\/+/, '').split('/');
