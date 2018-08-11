@@ -16,6 +16,8 @@ db.connect((err)=>{
     console.log("DB '", config.db.database, "' Connected.");
 });
 
+// small changes to show slack demo
+
 // server started
 var server = restify.createServer({
     name: 'docAPI',
