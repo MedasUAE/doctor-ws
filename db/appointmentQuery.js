@@ -1,82 +1,56 @@
-function queryAppointmentByDoctorId(){
+
+function queryPatientListByMobileNo(){
     const columns = [
-        'apt.id',
-        'apt.appoint_type', 
-        'apt.appoint_name', 
-        'apt.confirm_status', 
-        'apt.appoint_hr' ,
-        'apt.appoint_min' , 
-        'apt.slot_nos', 
-        'apt.op_number', 
-        'apt.appoint_status', 
-        'apt.doctors_id',
-        'apt.resource_id',
-        'apt.doctor_view', 
-        'apt.bill_submit',
-        'apt.appoint_purpose',
-        'office.office_Name',
-        'office.office_Id',
-        'res.resource_Name'
+        ' nr.patient_name','nr.sex', 'nr.date_of_birth','nr.emirates_id','nr.nationality','nr.passport_no','nr.op_number'
     ];
-    return  'SELECT ' + columns.join(',') + 
-            ' FROM appointments AS apt JOIN office_details AS office ON apt.office_id = office.office_Id '+
-            'LEFT OUTER JOIN resource_name AS res ON apt.resource_id = res.resource_id ' +
-            'WHERE apt.doctors_id = ? AND apt.appoint_date = ? AND cancel_status=\'N\'';
+    return  ' select distinct ' + columns.join(',') +' FROM new_registration nr ' +
+    ' where nr.mobile= ? ';
 }
 
-function queryAppointmentByRange(){
+function queryOfficeList(){
     const columns = [
-        'DATE_FORMAT(apt.appoint_date, "%Y-%m-%d") AS appoint_date',
-        'count(appoint_date) AS count'
+        'od.office_Id','od.office_Name'
     ];
-    return  'SELECT ' + columns.join(',') + 
-            ' FROM appointments AS apt JOIN office_details AS office ON apt.office_id = office.office_Id '+
-            'LEFT OUTER JOIN resource_name AS res ON apt.resource_id = res.resource_id ' +
-            'WHERE apt.doctors_id = ? AND ' +
-            'apt.appoint_date >= ? AND ' +
-            'apt.appoint_date <= ? AND ' +
-            'cancel_status=\'N\'' +
-            ' group by appoint_date';
+    return  ' select distinct ' + columns.join(',') +' FROM office_details od ';
 }
-
-function queryDoctorSlots(){
+function queryDepartmentList(){
     const columns = [
-        'apt_mstr.slots', 
-        'apt_mstr.doctors_id', 
-        'apt_mstr.slot_day'
+        ' ds.department_id','ds.department_name'
     ];
-    return  'SELECT ' + columns.join(',') + 
-            ' FROM appointment_schmaster apt_mstr JOIN appointment_sch apt_sch ON ' +
-            'apt_mstr.period_id = apt_sch.period_id WHERE ' +
-            'apt_sch.fromdate <= ? AND ' +
-            'apt_sch.todate >= ? AND ' + 
-            'apt_sch.doctors_id = ? AND ' +
-            'apt_sch.slot_day = ? AND ' +
-            'apt_sch.active_status = \'Y\'';
+    return  ' select distinct ' + columns.join(',') +' FROM department_setup ds '+
+    ' inner join department_office do on ds.department_id=do.department_id '+
+     ' where do.office_id=? ';
 }
 
-function queryResourceSlots(){
+function queryDoctorlistByDepartmentId(){
     const columns = [
-        'apt_mstr.slots', 
-        'apt_mstr.resource_id', 
-        'apt_sch.slots \'intrvl\'',
-        'apt_mstr.slot_day'
+        ' ds.doctors_id','ds.doctors_name '
     ];
-    return  'SELECT ' + columns.join(',') + 
-            ' FROM appointment_schmaster_res apt_mstr JOIN appointment_sch_res apt_sch ON ' +
-            'apt_mstr.period_id = apt_sch.period_id WHERE ' +
-            'apt_sch.fromdate <= ? AND ' +
-            'apt_sch.todate >= ? AND ' + 
-            'apt_sch.resource_id IN (?) AND ' +
-            'apt_sch.slot_day = ? AND ' +
-            'apt_sch.active_status = \'Y\'';
+    return  ' select distinct ' + columns.join(',') +' FROM doctors_office do ' +
+   ' inner join doctors_setup ds on ds.doctors_id=do.doctors_id ' +
+   ' where do.department_id=? ';
 }
 
-function queryDistinctResources(){
-    return  'SELECT DISTINCT (resource_id)' +
-            ' FROM appointments WHERE doctors_id = ? AND appoint_date = ?';
+function querySlotlistByDateAndDoctorId(){
+    const columns = [
+        ' apt_mstr.slots',' apt_mstr.doctors_id ','apt_mstr.slot_day'
+    ];
+    return  ' select distinct ' + columns.join(',') +' from  appointment_schmaster apt_mstr ' +
+   ' inner join appointment_sch apt_sch on  apt_mstr.period_id = apt_sch.period_id ' +
+   ' WHERE  apt_sch.fromdate <= ? AND ' + 
+  ' apt_sch.todate >= ? AND '+  
+   'apt_sch.doctors_id = ? AND '+ 
+    'apt_sch.slot_day = ? AND '+ 
+   ' apt_sch.active_status = \'Y\'';
 }
 
+function querySavepatient(){
+   
+    // return  ' INSERT INTO APPOINTMENTS VALUES ('Consultation','15:00','15:15','',null,'2017-01-31T20:00:00.000Z',null,'MALAK AL JAMAL ','52574696874','N',4,'2017-02-01T09:17:49.000Z','N',null,'+966',11,null,'1','N',null,null,'','','',null,'N','2','','',null,null,null,'N',null,null,22,'Female',null,null,null,'N',null,33,null);
+    // ';
+}
+
+<<<<<<< HEAD
 function queryPatientDetailByOpNumber(){
     const columns = [
         'op_id', 'registration_date','patient_name','mobile','patient_email','mother_name'
@@ -152,3 +126,16 @@ exports.queryAppointmentListByOpNumber = queryAppointmentListByOpNumber;
 exports.queryVitalListByConsultId = queryVitalListByConsultId;
 exports.queryTestdetailListByConsultId = queryTestdetailListByConsultId;
 exports.queryExaminationDetailListByConsultId = queryExaminationDetailListByConsultId;
+=======
+exports.queryPatientListByMobileNo = queryPatientListByMobileNo;
+exports.queryOfficeList = queryOfficeList;
+exports.queryDepartmentList = queryDepartmentList;
+exports.queryDoctorlistByDepartmentId = queryDoctorlistByDepartmentId;
+exports.querySlotlistByDateAndDoctorId = querySlotlistByDateAndDoctorId;
+exports.querySavepatient = querySavepatient;
+
+
+
+
+
+>>>>>>> fc2535a84c45f850988ae13530208522dca90dd1

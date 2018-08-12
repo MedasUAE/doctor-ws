@@ -6,7 +6,7 @@ module.exports = {
     db:{
         host: process.env.DB_HOST || 'localhost',
         user: process.env.DB_USER || 'root',
-        password : process.env.DB_PSW || 'medteam2013',
+        password : process.env.DB_PSW || '',
         port : process.env.DB_PORT || 3306, //port mysql
         database:process.env.DB_NAME || 'eclinic_damas'
     }
