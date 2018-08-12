@@ -6,6 +6,10 @@ var mysql = require('mysql');
 
 var config = require('./config/config');
 
+var redis = require('redis');
+//creates a new redis client at host 127.0.0.1 and port 6379
+var redisClient = redis.createClient(config.redis_port, config.redis_host);
+
 // Database connection
 db = mysql.createConnection(config.db);
 db.connect((err)=>{
@@ -15,7 +19,6 @@ db.connect((err)=>{
     }
     console.log("DB '", config.db.database, "' Connected.");
 });
-
 
 // server started
 var server = restify.createServer({
@@ -68,3 +71,8 @@ server.listen(config.port,()=>{
     require('./routes')(server);
     console.log("Server started on port: ", config.port);
 });
+
+redisClient.on('connect', function () {
+    console.log('connected to redis server on port : ',config.redis_port);
+});
+exports.redisClient = redisClient;

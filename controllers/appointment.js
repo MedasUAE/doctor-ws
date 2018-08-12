@@ -6,97 +6,102 @@ var helper = require('./helper');
 require('../config/global');
 const groupBy = require('lodash/groupBy');
 
-function getById (id,next){
+function getById(id, next) {
     const columns = ['appoint_type', 'appoint_date'];
-    const query = 'select ' + columns.join(',') +' from appointments where id = ?';
+    const query = 'select ' + columns.join(',') + ' from appointments where id = ?';
     const params = [parseInt(id)];
-    
-    db_query.paramQuery(query, params, (err, result)=>{
-        if(err) return next(err);   
-        return next(null,result);
+
+    db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
     })
 }
 
-function getAppointmentByDoctorId (post_data,next){
-    if(!post_data) return next("NoPOSTDATA");
-    if(!post_data.appoint_date) return next("NoAptDate");
-    if(!post_data.doctor_id) return next("NoDocID");
-    
+function getAppointmentByDoctorId(post_data, next) {
+    if (!post_data) return next("NoPOSTDATA");
+    if (!post_data.appoint_date) return next("NoAptDate");
+    if (!post_data.doctor_id) return next("NoDocID");
+
     const query = apt_query.queryAppointmentByDoctorId();
     const params = [post_data.doctor_id, post_data.appoint_date];
-
-    db_query.paramQuery(query, params, (err, result)=>{
-        if(err) return next(err);   
-        return next(null,result);
+    console.log("getAppointmentByDoctorId:" + query);
+    console.log(params);
+    db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
     });
 }
 
-function getDoctorSlots(post_data, next){
-    if(!post_data) return next("NoPostData");
+function getDoctorSlots(post_data, next) {
+    if (!post_data) return next("NoPostData");
     const date = new Date(post_data.appoint_date);
     const params = [post_data.appoint_date, post_data.appoint_date, post_data.doctor_id, date.getDay()];
-    
+
 
     const join_query = apt_query.queryDoctorSlots();
-    db_query.paramQuery(join_query, params, (err, result)=>{
-        if(err) return next(err);  
-        return next(null,result);
+    console.log("getDoctorSlots:" + join_query);
+    console.log(params);
+    db_query.paramQuery(join_query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
     });
 }
 
-function getDistinctResources(post_data, next){
-    if(!post_data) return next("NoPostData");
+function getDistinctResources(post_data, next) {
+    if (!post_data) return next("NoPostData");
     const date = new Date(post_data.appoint_date);
     const params = [post_data.doctor_id, post_data.appoint_date];
-    
+
 
     const query = apt_query.queryDistinctResources();
-    db_query.paramQuery(query, params, (err, result)=>{
-        if(err) return next(err);  
-        return next(null,result);
+    db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
     });
 }
 
-function getResourceSlots(post_data, next){
-    if(!post_data) return next("NoPostData");
+function getResourceSlots(post_data, next) {
+    if (!post_data) return next("NoPostData");
     const date = new Date(post_data.appoint_date);
     const params = [post_data.appoint_date, post_data.appoint_date, post_data.resource_ids, date.getDay()];
 
     const join_query = apt_query.queryResourceSlots();
-    console.log(join_query, params);
-    db_query.paramQuery(join_query, params, (err, result)=>{
-        if(err) return next(err);  
-        return next(null,result);
+    console.log("getResourceSlots:" + join_query);
+    console.log("params:" + params);
+    db_query.paramQuery(join_query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
     });
 }
 
 function getDistinctResourceSlots(post_data, next) {
-    getDistinctResources(post_data, (err, resources)=>{
-        if(err) return callback(err);
-        if(!resources.length) next(null,[]);
-        else{
-            post_data.resource_ids = resources.map(r=>{return r.resource_id});
-            getResourceSlots(post_data, (err, resouceSlots)=>{
-                if(err) return next(err);
-                const minMax = helper.getMinMaxTime(resouceSlots);
+    getDistinctResources(post_data, (err, resources) => {
+        if (err) return callback(err);
+        if (!resources.length) next(null, []);
+        else {
+            post_data.resource_ids = resources.map(r => { return r.resource_id });
+            getResourceSlots(post_data, (err, resouceSlots) => {
                 console.log(resouceSlots);
-                if(!resouceSlots.length) return next("no resourceSlot found")
+                if (err) return next(err);
+                if (!resouceSlots.length) next("No slot present");
+                const minMax = helper.getMinMaxTime(resouceSlots);
+
                 // console.log(helper.getMinMaxTime(resouceSlots));
                 // console.log(helper.makeSlots(minMax.min,minMax.max, resouceSlots[0].intrvl));
-                next(null, helper.makeSlots(minMax.min,minMax.max, resouceSlots[0].intrvl));
+                next(null, helper.makeSlots(minMax.min, minMax.max, resouceSlots[0].intrvl));
             });
         }
     });
 }
 
-function prepareSlots(results){
-    if(results.length < 2) return [];
-    if(!Array.isArray(results[2])) return [];
+function prepareSlots(results) {
+    if (results.length < 2) return [];
+    if (!Array.isArray(results[2])) return [];
     results[2].forEach(slot => {
-        slot.time = moment().set({hour:parseInt(slot.slots.split(":")[0]),minute: parseInt(slot.slots.split(":")[1])}).format("hh:mm A");
+        slot.time = moment().set({ hour: parseInt(slot.slots.split(":")[0]), minute: parseInt(slot.slots.split(":")[1]) }).format("hh:mm A");
         slot.appointments = []
         for (let index = 0; index < results[0].length; index++) {
-            if(betweenTime(results[0][index].appoint_hr, results[0][index].appoint_min,slot.slots)){
+            if (betweenTime(results[0][index].appoint_hr, results[0][index].appoint_min, slot.slots)) {
                 (results[0][index].op_number) ? results[0][index].new_patient = false : results[0][index].new_patient = true; //new patient Oldpatient flag
                 results[0][index].status = appointmentStatus(results[0][index]); //status selection
                 slot.appointments.push(results[0][index]);
@@ -109,30 +114,30 @@ function prepareSlots(results){
     return results[2];
 }
 
-function prepareDashboard(results){
+function prepareDashboard(results) {
     let CONFIRMED = 0, ARRIVED = 0, NOTCONFIRMED = 0, NEW = 0, REVISIT = 0, TOTAL = 0, CLOSED = 0, status;
-    results.forEach(r=>{
+    results.forEach(r => {
         status = appointmentStatus(r)
         switch (status) {
             case "CONFIRMED":
-                CONFIRMED +=1;
+                CONFIRMED += 1;
                 break;
             case "ARRIVED":
                 console.log(ARRIVED);
-                ARRIVED +=1;
+                ARRIVED += 1;
                 break;
             case "NOTCONFIRMED":
-                NOTCONFIRMED +=1;
+                NOTCONFIRMED += 1;
                 break;
             case "CLOSED":
-                CLOSED +=1;
+                CLOSED += 1;
                 break;
             default:
                 console.log(appointmentStatus(r));
                 break;
         }
-        if (!r.op_number)  NEW +=1;
-        if (r.op_number) REVISIT +=1;
+        if (!r.op_number) NEW += 1;
+        if (r.op_number) REVISIT += 1;
 
         // if(r.appointments.length){
         //     r.appointments.forEach(apt=>{
@@ -142,63 +147,63 @@ function prepareDashboard(results){
         //         if (!apt.op_number)  NEW +=1;
         //         if (apt.op_number) REVISIT +=1;
         //     })
-            // if (r.status == "CONFIRMED") CONFIRMED +=1;
-            // if (r.status == "ARRIVED") ARRIVED +=1;
-            // if (r.status == "NOTCONFIRMED") NOTCONFIRMED +=1;
-            // if (!r.appointment.op_number)  NEW +=1;
-            // if (r.appointment.op_number) REVISIT +=1;
+        // if (r.status == "CONFIRMED") CONFIRMED +=1;
+        // if (r.status == "ARRIVED") ARRIVED +=1;
+        // if (r.status == "NOTCONFIRMED") NOTCONFIRMED +=1;
+        // if (!r.appointment.op_number)  NEW +=1;
+        // if (r.appointment.op_number) REVISIT +=1;
         // }
     });
     return [
-        { label: "TOTAL", value: (NOTCONFIRMED+CONFIRMED+ARRIVED+CLOSED)},
-        { label: "ARRIVED", value: ARRIVED},
-        { label: "CONFIRMED", value: CONFIRMED},
-        { label: "NOT CONFIRMED", value: NOTCONFIRMED},
-        { label: "CLOSED", value: CLOSED},
-        { label: "NEW", value: NEW},
-        { label: "REVISIT", value: REVISIT},
+        { label: "TOTAL", value: (NOTCONFIRMED + CONFIRMED + ARRIVED + CLOSED) },
+        { label: "ARRIVED", value: ARRIVED },
+        { label: "CONFIRMED", value: CONFIRMED },
+        { label: "NOT CONFIRMED", value: NOTCONFIRMED },
+        { label: "CLOSED", value: CLOSED },
+        { label: "NEW", value: NEW },
+        { label: "REVISIT", value: REVISIT },
     ];
 }
 
-function betweenTime(fromTime,toTime,slot) {
+function betweenTime(fromTime, toTime, slot) {
     var regExp = /(\d{1,2})\:(\d{1,2})/;
-    if(
-        (parseInt(fromTime.replace(regExp, "$1$2$3")) <= parseInt(slot.replace(regExp,"$1$2$3")))
+    if (
+        (parseInt(fromTime.replace(regExp, "$1$2$3")) <= parseInt(slot.replace(regExp, "$1$2$3")))
         &&
-        (parseInt(slot.replace(regExp,"$1$2$3")) < parseInt(toTime.replace(regExp, "$1$2$3")))
-    ){
+        (parseInt(slot.replace(regExp, "$1$2$3")) < parseInt(toTime.replace(regExp, "$1$2$3")))
+    ) {
         return true;
     }
-    else {return false;}
+    else { return false; }
 }
 
-function appointmentStatus(aptObj){
+function appointmentStatus(aptObj) {
     let status;
     (aptObj.confirm_status == 'N' && aptObj.appoint_status == 'Y') ? status = global.status.CONFIRMED : status = global.status.NOTCONFIRMED;
-    if(aptObj.doctor_view == 'Y') status = global.status.ARRIVED;
-    if(aptObj.bill_submit == 'Y') status = global.status.CLOSED;
-    if(aptObj.appoint_name.toUpperCase() == 'BLOCKED') status = global.status.BLOCKED;
+    if (aptObj.doctor_view == 'Y') status = global.status.ARRIVED;
+    if (aptObj.bill_submit == 'Y') status = global.status.CLOSED;
+    if (aptObj.appoint_name.toUpperCase() == 'BLOCKED') status = global.status.BLOCKED;
     return status;
 }
-    
-function getDocAppointment(post_data, next){
+
+function getDocAppointment(post_data, next) {
     async.parallel([
-        function(callback) {
-            getAppointmentByDoctorId(post_data,(err,result)=>{
-                if(err) return callback(err);
+        function (callback) {
+            getAppointmentByDoctorId(post_data, (err, result) => {
+                if (err) return callback(err);
                 callback(null, result);
             })
         },
-        function(callback) {
-            getDoctorSlots(post_data,(err,slots)=>{
-                if(err) return callback(err);
+        function (callback) {
+            getDoctorSlots(post_data, (err, slots) => {
+                if (err) return callback(err);
                 // console.log(slots);
                 callback(null, slots);
             })
         },
         function (callback) {
-            getDistinctResourceSlots(post_data, (err, result)=>{
-                if(err) return callback(err);
+            getDistinctResourceSlots(post_data, (err, result) => {
+                if (err) return callback(err);
                 callback(null, result);
             });
         },
@@ -209,16 +214,16 @@ function getDocAppointment(post_data, next){
         //     });
         // }
     ],
-    // optional callback
-    function(err, results) {
-        if(err) return next(err);
-        // console.log(results);
-        let data = {list:prepareSlots(results)};
-        // let data = {list:results};
+        // optional callback
+        function (err, results) {
+            if (err) return next(err);
+            // console.log(results);
+            let data = { list: prepareSlots(results) };
+            // let data = {list:results};
 
-        data.dashboard = prepareDashboard(results[0]);
-        return next(null,data);
-    });
+            data.dashboard = prepareDashboard(results[0]);
+            return next(null, data);
+        });
 }
 
 // function groupByAppt(list){
@@ -231,8 +236,8 @@ function getDocAppointment(post_data, next){
 //     return newGB;
 // }
 
-function transformMonthly(data, date,  denominator = 2){
-    return helper.makeResult(data,date,denominator, "month");
+function transformMonthly(data, date, denominator = 2) {
+    return helper.makeResult(data, date, denominator, "month");
     // const result = [], mod = data.length%denominator;
     // // console.log(moment(data[0].appoint_date).month())
     // // console.log(helper.mapAppointmentInMonth(data,moment(data[0].appoint_date)));
@@ -277,40 +282,93 @@ function transformMonthly(data, date,  denominator = 2){
     // return result;
 }
 
-function transformWeekly(data, date){
-    return helper.makeResult(data,date,1,"week")
+function transformWeekly(data, date) {
+    return helper.makeResult(data, date, 1, "week")
 }
 
-function getWeeklyAppointment(post_data, next){
+function getWeeklyAppointment(post_data, next) {
     try {
-        if(!post_data) return next("no post_data");
+        if (!post_data) return next("no post_data");
         const query = apt_query.queryAppointmentByRange();
         const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
-        db_query.paramQuery(query, params, (err, result)=>{
-            if(err) return next(err);         
-            return next(null,transformWeekly(result, post_data.start_appoint_date));
+        db_query.paramQuery(query, params, (err, result) => {
+            if (err) return next(err);
+            return next(null, transformWeekly(result, post_data.start_appoint_date));
         });
     } catch (error) {
-        return next(null,[]);
+        return next(null, []);
     }
-    
+
 }
 
-function getMonthlyAppointment(post_data, next){
+function getMonthlyAppointment(post_data, next) {
     try {
-        if(!post_data) return next("no post_data");
+        if (!post_data) return next("no post_data");
         const query = apt_query.queryAppointmentByRange();
         const params = [post_data.doctor_id, post_data.start_appoint_date, post_data.end_appoint_date];
-        db_query.paramQuery(query, params, (err, result)=>{
-            if(err) return next(err); 
-            if(!result) return next("noresult");       
+        db_query.paramQuery(query, params, (err, result) => {
+            if (err) return next(err);
+            if (!result) return next("noresult");
             // if(!result.length) return next(null, result); 
-            return next(null,transformMonthly(result, post_data.start_appoint_date, 7));
+            return next(null, transformMonthly(result, post_data.start_appoint_date, 7));
         });
     } catch (error) {
         console.log("***** new error ***");
-        return new Error(error);      
+        return new Error(error);
     }
+}
+
+function getPatientDetailByOpNumber(id, next) {
+    const query = apt_query.queryPatientDetailByOpNumber();
+    const params = id;
+     db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
+}
+
+function getOutPatientList(consultDate, officeId, next) {
+    const query = apt_query.getOutPatientList();
+    const params = [consultDate, officeId];
+    db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
+}
+
+function getAppointmentListByOpNumber(id, next) {
+    const query = apt_query.queryAppointmentListByOpNumber();
+    const params = id;
+    db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
+}
+
+function getVitalListByConsultId(id, next) {
+    const query = apt_query.queryVitalListByConsultId(id);
+    const params = id;
+    db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
+}
+
+function getTestdetailListByConsultId(id, next) {
+    const query = apt_query.queryTestdetailListByConsultId(id);
+    const params = id;
+    db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
+}
+function getExaminationDetailListByConsultId(id, next) {
+    const query = apt_query.queryExaminationDetailListByConsultId(id);
+    const params = id;
+    db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
 }
 
 exports.getById = getById;
@@ -318,3 +376,10 @@ exports.getByDoctorId = getDocAppointment;
 exports.getDoctorSlots = getDoctorSlots;
 exports.getWeeklyAppointment = getWeeklyAppointment;
 exports.getMonthlyAppointment = getMonthlyAppointment;
+exports.getPatientDetailByOpNumber = getPatientDetailByOpNumber;
+exports.getOutPatientList = getOutPatientList;
+exports.getAppointmentListByOpNumber = getAppointmentListByOpNumber;
+exports.getVitalListByConsultId = getVitalListByConsultId;
+exports.getVitalListByConsultId = getVitalListByConsultId;
+exports.getTestdetailListByConsultId = getTestdetailListByConsultId;
+exports.getExaminationDetailListByConsultId = getExaminationDetailListByConsultId;
