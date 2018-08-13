@@ -336,6 +336,42 @@ function getOutPatientList(consultDate, officeId, next) {
     })
 }
 
+
+function getOfficeList(next) {
+    const query = apt_query.queryOfficeList();
+      db_query.query(query, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
+}
+
+function getDepartmentListByOfficeId(id,next) {
+    const query = apt_query.queryDepartmentListByOfficeId();
+    const params = id;
+     db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
+}
+
+function getDoctorlistByDepartmentIdAndOfficeId(deptId,officeId, next) {
+    const query = apt_query.queryDoctorlistByDepartmentIdAndOfficeId();
+    const params = [deptId,officeId];
+     db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
+}
+
+function getTimeSlotlistByAptDateDoctorIdAndOfficeId(aptDate,doctorId,oficeId, next) {
+    const query = apt_query.queryTimeSlotlistByAptDateDoctorIdAndOfficeId();
+    const params = [aptDate,aptDate,doctorId,new Date(aptDate).getDay(),oficeId];
+    db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
+}
+
 function getAppointmentListByOpNumber(id, next) {
     const query = apt_query.queryAppointmentListByOpNumber();
     const params = id;
@@ -378,8 +414,11 @@ exports.getWeeklyAppointment = getWeeklyAppointment;
 exports.getMonthlyAppointment = getMonthlyAppointment;
 exports.getPatientDetailByOpNumber = getPatientDetailByOpNumber;
 exports.getOutPatientList = getOutPatientList;
+exports.getOfficeList = getOfficeList;
+exports.getDepartmentListByOfficeId = getDepartmentListByOfficeId;
+exports.getDoctorlistByDepartmentIdAndOfficeId = getDoctorlistByDepartmentIdAndOfficeId;
+exports.getTimeSlotlistByAptDateDoctorIdAndOfficeId = getTimeSlotlistByAptDateDoctorIdAndOfficeId;
 exports.getAppointmentListByOpNumber = getAppointmentListByOpNumber;
-exports.getVitalListByConsultId = getVitalListByConsultId;
 exports.getVitalListByConsultId = getVitalListByConsultId;
 exports.getTestdetailListByConsultId = getTestdetailListByConsultId;
 exports.getExaminationDetailListByConsultId = getExaminationDetailListByConsultId;

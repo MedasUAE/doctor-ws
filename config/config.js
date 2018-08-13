@@ -8,6 +8,6 @@ module.exports = {
         user: process.env.DB_USER || 'root',
         password : process.env.DB_PSW || '',
         port : process.env.DB_PORT || 3306, //port mysql
-        database:process.env.DB_NAME || 'eclinic_damas'
+        database:process.env.DB_NAME || 'eclinic_samc'
     }
 }

@@ -22,12 +22,25 @@ module.exports = function(server){
         });
     });
     server.get({ path:'/departmentlist/:id', version:'1.0.0' },(req, res, next)=>{
-        appointment.getDepartmentList(req.params.id,(err,response) => {
+        appointment.getDepartmentListByOfficeId(req.params.id,(err,response) => {
             if(err) return res.send(400, {DisplayMessage:err});
             return res.send(200,response);
         });
     });
 
+    server.get({ path:'/doctorlist/', version:'1.0.0' },(req, res, next)=>{
+        appointment.getDoctorlistByDepartmentIdAndOfficeId(req.query.deptid,req.query.officeid,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,response);
+        });
+    });
+
+    server.get({ path:'/slotlist/', version:'1.0.0' },(req, res, next)=>{
+        appointment.getTimeSlotlistByAptDateDoctorIdAndOfficeId(req.query.aptdate,req.query.doctorid,req.query.officeid,(err,response) => {
+            if(err) return res.send(400, {DisplayMessage:err});
+            return res.send(200,response);
+        });
+    });
     server.get({ path:'/patient-detail/:id', version:'1.0.0' },(req, res, next)=>{
         appointment.getPatientDetailByOpNumber(req.params.id,(err,response) => {
             if(err) return res.send(400, {DisplayMessage:err});
@@ -80,17 +93,5 @@ module.exports = function(server){
         });
     });
 
-    server.get({ path:'/slotlist', version:'1.0.0' },(req, res, next)=>{
-        appointment.getSlotlistByDateAndDoctorId(req.query.date,req.query.id,(err,response) => {
-            if(err) return res.send(400, {DisplayMessage:err});
-            return res.send(200,response);
-        });
-    });
 
-    server.post({ path: '/savepatient', version: '1.0.0' },(req, res, next)=>{ 
-        appointment.savepatient(req.body,(err,response) => {
-            if(err) return res.send(400, {DisplayMessage:err});
-            return res.send(200,response);
-        });
-    });
 }
