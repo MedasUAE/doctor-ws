@@ -321,7 +321,7 @@ function getMonthlyAppointment(post_data, next) {
 function getPatientDetailByOpNumber(id, next) {
     const query = apt_query.queryPatientDetailByOpNumber();
     const params = id;
-     db_query.paramQuery(query, params, (err, result) => {
+    db_query.paramQuery(query, params, (err, result) => {
         if (err) return next(err);
         return next(null, result);
     })
@@ -339,33 +339,33 @@ function getOutPatientList(consultDate, officeId, next) {
 
 function getOfficeList(next) {
     const query = apt_query.queryOfficeList();
-      db_query.query(query, (err, result) => {
+    db_query.query(query, (err, result) => {
         if (err) return next(err);
         return next(null, result);
     })
 }
 
-function getDepartmentListByOfficeId(id,next) {
+function getDepartmentListByOfficeId(id, next) {
     const query = apt_query.queryDepartmentListByOfficeId();
     const params = id;
-     db_query.paramQuery(query, params, (err, result) => {
+    db_query.paramQuery(query, params, (err, result) => {
         if (err) return next(err);
         return next(null, result);
     })
 }
 
-function getDoctorlistByDepartmentIdAndOfficeId(deptId,officeId, next) {
+function getDoctorlistByDepartmentIdAndOfficeId(deptId, officeId, next) {
     const query = apt_query.queryDoctorlistByDepartmentIdAndOfficeId();
-    const params = [deptId,officeId];
-     db_query.paramQuery(query, params, (err, result) => {
+    const params = [deptId, officeId];
+    db_query.paramQuery(query, params, (err, result) => {
         if (err) return next(err);
         return next(null, result);
     })
 }
 
-function getTimeSlotlistByAptDateDoctorIdAndOfficeId(aptDate,doctorId,oficeId, next) {
+function getTimeSlotlistByAptDateDoctorIdAndOfficeId(aptDate, doctorId, oficeId, next) {
     const query = apt_query.queryTimeSlotlistByAptDateDoctorIdAndOfficeId();
-    const params = [aptDate,aptDate,doctorId,new Date(aptDate).getDay(),oficeId];
+    const params = [aptDate, aptDate, doctorId, new Date(aptDate).getDay(), oficeId];
     db_query.paramQuery(query, params, (err, result) => {
         if (err) return next(err);
         return next(null, result);
@@ -407,6 +407,19 @@ function getExaminationDetailListByConsultId(id, next) {
     })
 }
 
+
+function saveAppointmentDetail(appointmentDetail, next) {
+
+    const query = apt_query.querySaveAppointmentDetail();
+    const params = ['Consultation', appointmentDetail.selectedTimeSlot, appointmentDetail.selectedTimeSlot, appointmentDetail.selectedDate, appointmentDetail.op_number, appointmentDetail.appoint_name,
+        appointmentDetail.mobile, 'N', appointmentDetail.selectedDoctorId, new Date(), 'N', '971', 'sultan user',
+        appointmentDetail.selectedNoOfSlot, 'N', 'N', appointmentDetail.selectedOfficeId, 'N'];
+    db_query.paramQuery(query, params, (err, result) => {
+        if (err) return next(err);
+        return next(null, result);
+    })
+}
+
 exports.getById = getById;
 exports.getByDoctorId = getDocAppointment;
 exports.getDoctorSlots = getDoctorSlots;
@@ -422,3 +435,4 @@ exports.getAppointmentListByOpNumber = getAppointmentListByOpNumber;
 exports.getVitalListByConsultId = getVitalListByConsultId;
 exports.getTestdetailListByConsultId = getTestdetailListByConsultId;
 exports.getExaminationDetailListByConsultId = getExaminationDetailListByConsultId;
+exports.saveAppointmentDetail = saveAppointmentDetail;
