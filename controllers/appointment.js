@@ -63,7 +63,7 @@ function getResourceSlots(post_data, next){
     const params = [post_data.appoint_date, post_data.appoint_date, post_data.resource_ids, date.getDay()];
 
     const join_query = apt_query.queryResourceSlots();
-    console.log(join_query, params);
+    // console.log(join_query, params);
     db_query.paramQuery(join_query, params, (err, result)=>{
         if(err) return next(err);  
         return next(null,result);
@@ -79,7 +79,7 @@ function getDistinctResourceSlots(post_data, next) {
             getResourceSlots(post_data, (err, resouceSlots)=>{
                 if(err) return next(err);
                 const minMax = helper.getMinMaxTime(resouceSlots);
-                console.log(resouceSlots);
+                // console.log(resouceSlots);
                 if(!resouceSlots.length) return next("no resourceSlot found")
                 // console.log(helper.getMinMaxTime(resouceSlots));
                 // console.log(helper.makeSlots(minMax.min,minMax.max, resouceSlots[0].intrvl));
@@ -118,7 +118,7 @@ function prepareDashboard(results){
                 CONFIRMED +=1;
                 break;
             case "ARRIVED":
-                console.log(ARRIVED);
+                // console.log(ARRIVED);
                 ARRIVED +=1;
                 break;
             case "NOTCONFIRMED":

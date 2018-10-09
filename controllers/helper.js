@@ -39,18 +39,22 @@ function makeSlots(minTime, maxTime, interval){
         let hrs,minutes;
         if(time.toString().length<4){
             minutes = parseInt(time.toString().substr(1,2));
+            
             hrs = parseInt(time.toString().substr(0,1));    
         }
         else if(time.toString().length == 4){
             minutes = parseInt(time.toString().substr(2,2));
             hrs = parseInt(time.toString().substr(0,2));
         }
+
         if(minutes>59){
             minutes = "00"
             if(hrs == 23) hrs = 0;
             else hrs = hrs + 1;
         }
+        if(minutes == 0 )  minutes = "00";
         if(hrs<10) hrs = "0" + hrs;
+
         return hrs + ":" + minutes;
     }
 }
